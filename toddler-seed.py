@@ -7,6 +7,7 @@ import time
 
 from featureMatching import *
 from resourceData import *
+from sceneData import *
 
 
 def InitResources(resources):
@@ -15,7 +16,7 @@ def InitResources(resources):
 
 
 def FeatureMatching(self, resourceData, sceneData):
-    matches = flann.knnMatch(resourceData.descriptors, sceneData[2], k = 2)
+    matches = flann.knnMatch(resourceData.descriptors, sceneData.descriptors, k = 2)
 
     # store all the good matches as per Lowe's ratio test.
     good = []
@@ -25,7 +26,7 @@ def FeatureMatching(self, resourceData, sceneData):
 
     if len(good) > MIN_MATCH_COUNT:
     	src_pts = np.float32([ resourceData.keypoints[m.queryIdx].pt for m in good ]).reshape(-1, 1, 2)
-    	dst_pts = np.float32([ sceneData[1][m.trainIdx].pt for m in good ]).reshape(-1, 1, 2)
+    	dst_pts = np.float32([ sceneData.keypoints[m.trainIdx].pt for m in good ]).reshape(-1, 1, 2)
 
     	M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
     	matchesMask = mask.ravel().tolist()
@@ -34,7 +35,7 @@ def FeatureMatching(self, resourceData, sceneData):
     	pts = np.float32([ [0, 0], [0, h-1], [w-1, h-1], [w-1, 0] ]).reshape(-1, 1, 2)
     	dst = cv2.perspectiveTransform(pts, M)
 
-    	sceneData[0] = cv2.polylines(sceneData[0], [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+    	sceneData.image = cv2.polylines(sceneData.image, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
         print "%s found!" % resourceData.name
 
     else:
@@ -47,7 +48,7 @@ def FeatureMatching(self, resourceData, sceneData):
                        flags = 2)
 
     imgMatches = cv2.drawMatches(resourceData.image, resourceData.keypoints,
-                                 sceneData[0], sceneData[1],
+                                 sceneData.image, sceneData.keypoints,
                                  good, None, **draw_params)
 
     # Display the image
@@ -90,15 +91,12 @@ class Toddler:
             # Read the image
             cameraImage = cv2.cvtColor(self.IO.cameraRead(), cv2.COLOR_BGR2GRAY)
 
-            # find the keypoints and descriptors of the camera image with SIFT
-            kp, des = sift.detectAndCompute(cameraImage, None)
-
-            # [cameraImage, keypoints, descriptors]
-            cameraData = [cameraImage, kp, des]
+            # Create SceneData instance
+            sceneData = SceneData(cameraImage)
 
             # look for resources in the scene
             for resourceData in self.resourcesData:
-                FeatureMatching(self, resourceData, cameraData)
+                FeatureMatching(self, resourceData, sceneData)
 
             # Dump next couple of frames...
             for i in range(0, 10):
