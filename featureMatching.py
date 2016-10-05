@@ -42,7 +42,7 @@ def FeatureMatching(self, resourceData, sceneData):
                 self.visibleResources[i] = 1
 
     else:
-    	print "Not enough matches are found - %d/%d" % (len(good), MIN_MATCH_COUNT)
+    	#print "Not enough matches are found - %d/%d" % (len(good), MIN_MATCH_COUNT)
     	matchesMask = None
 
     draw_params = dict(matchColor = (0, 255, 0), # draw matches in green color

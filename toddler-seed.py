@@ -26,6 +26,9 @@ class Toddler:
         self.IO = IO
 
         # Add more initialisation code here
+        self.inputs = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.hallCounter = 0
+
         self.visibleResources = [0, 0, 0, 0]
 
         self.resourcesData = []
@@ -42,8 +45,19 @@ class Toddler:
     # It has its dedicated thread so you can keep blocking it.
     def Control(self, OK):
         while OK():
+            self.lastInputs = self.inputs
+            self.inputs = list(self.IO.getInputs())
+
+            print
+            print self.lastInputs
+            print self.inputs
+
+            if (self.lastInputs[7] != self.inputs[7]):
+                self.hallCounter += 1
+            print 'Travelled distance: %d' % self.hallCounter
+
             if (self.ResourceIsVisible()):
-                self.MoveBackwards()
+                self.MoveForward()
             else:
                 self.STOP()
 
