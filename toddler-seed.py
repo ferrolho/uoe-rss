@@ -26,7 +26,6 @@ class Toddler:
         self.IO = IO
 
         # Add more initialisation code here
-        self.inputs = [0, 0, 0, 0, 0, 0, 0, 0]
         self.hallCounter = 0
 
         self.visibleResources = [0, 0, 0, 0]
@@ -45,21 +44,36 @@ class Toddler:
     # It has its dedicated thread so you can keep blocking it.
     def Control(self, OK):
         while OK():
-            self.lastInputs = self.inputs
-            self.inputs = list(self.IO.getInputs())
-
-            print
-            print self.lastInputs
-            print self.inputs
-
-            if (self.lastInputs[7] != self.inputs[7]):
-                self.hallCounter += 1
-            print 'Travelled distance: %d' % self.hallCounter
-
-            if (self.ResourceIsVisible()):
-                self.MoveForward()
+            if hasattr(self, 'inputs'):
+                self.lastInputs = self.inputs
+                self.inputs = list(self.IO.getInputs())
             else:
-                self.STOP()
+                self.inputs = list(self.IO.getInputs())
+                self.lastInputs = self.inputs
+
+            self.sensors = self.IO.getSensors()
+            print self.sensors
+
+            #print
+            #print self.lastInputs
+            #print self.inputs
+
+            if self.lastInputs[7] != self.inputs[7]:
+                self.hallCounter += 1
+            #print 'Travelled distance: %d' % self.hallCounter
+
+            if self.ObstacleToTheRight():
+                self.TurnLeft()
+            elif self.ObstacleToTheLeft():
+                self.TurnRight()
+            else:
+                self.MoveForward()
+
+
+    def ObstacleToTheRight(self):
+        return self.sensors[0] > 300
+    def ObstacleToTheLeft(self):
+        return self.sensors[1] > 300
 
 
     def STOP(self):
