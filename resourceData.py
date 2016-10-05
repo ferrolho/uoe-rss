@@ -1,7 +1,5 @@
 import cv2
-from featureMatching import *
-
-RESOURCE_NAMES = ['mario', 'wario', 'watching', 'zoidberg']
+from featureMatching import sift
 
 class ResourceData:
     def __init__(self, name):

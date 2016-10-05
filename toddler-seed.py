@@ -2,57 +2,17 @@
 __TODDLER_VERSION__ = "1.0.0"
 
 import cv2
-import numpy as np
 import time
 
 from featureMatching import *
 from resourceData import *
 from sceneData import *
+from settings import *
 
 
 def InitResources(resources):
     for name in RESOURCE_NAMES:
         resources.append(ResourceData(name))
-
-
-def FeatureMatching(self, resourceData, sceneData):
-    matches = flann.knnMatch(resourceData.descriptors, sceneData.descriptors, k = 2)
-
-    # store all the good matches as per Lowe's ratio test.
-    good = []
-    for m, n in matches:
-    	if m.distance < 0.7 * n.distance:
-    		good.append(m)
-
-    if len(good) > MIN_MATCH_COUNT:
-    	src_pts = np.float32([ resourceData.keypoints[m.queryIdx].pt for m in good ]).reshape(-1, 1, 2)
-    	dst_pts = np.float32([ sceneData.keypoints[m.trainIdx].pt for m in good ]).reshape(-1, 1, 2)
-
-    	M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
-    	matchesMask = mask.ravel().tolist()
-
-    	h, w = resourceData.image.shape
-    	pts = np.float32([ [0, 0], [0, h-1], [w-1, h-1], [w-1, 0] ]).reshape(-1, 1, 2)
-    	dst = cv2.perspectiveTransform(pts, M)
-
-    	sceneData.image = cv2.polylines(sceneData.image, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
-        print "%s found!" % resourceData.name
-
-    else:
-    	print "Not enough matches are found - %d/%d" % (len(good),MIN_MATCH_COUNT)
-    	matchesMask = None
-
-    draw_params = dict(matchColor = (0, 255, 0), # draw matches in green color
-                       singlePointColor = None,
-                       matchesMask = matchesMask, # draw only inliers
-                       flags = 2)
-
-    imgMatches = cv2.drawMatches(resourceData.image, resourceData.keypoints,
-                                 sceneData.image, sceneData.keypoints,
-                                 good, None, **draw_params)
-
-    # Display the image
-    self.IO.imshow(resourceData.name, imgMatches)
 
 
 # Main Toddler class
@@ -66,41 +26,69 @@ class Toddler:
         self.IO = IO
 
         # Add more initialisation code here
+        self.visibleResources = [0, 0, 0, 0]
+
         self.resourcesData = []
         InitResources(self.resourcesData)
+
+
+    def ResourceIsVisible(self):
+        for visible in self.visibleResources:
+            if (visible):
+                return True
 
 
     # This is a callback that will be called repeatedly.
     # It has its dedicated thread so you can keep blocking it.
     def Control(self, OK):
         while OK():
-            # Add control code here
-            time.sleep(0.05)
+            if (self.ResourceIsVisible()):
+                self.MoveBackwards()
+            else:
+                self.STOP()
+
+
+    def STOP(self):
+        self.IO.setMotors(0, 0)
+
+    def MoveBackwards(self):
+        self.IO.setMotors(100, -100)
+    def MoveForward(self):
+        self.IO.setMotors(-100, 100)
+
+    def TurnLeft(self):
+        self.IO.setMotors(100, 100)
+    def TurnRight(self):
+        self.IO.setMotors(-100, -100)
 
 
     # This is a callback that will be called repeatedly.
     # It has its dedicated thread so you can keep blocking it.
     def Vision(self, OK):
-        # Set the camera resolution
-        self.IO.cameraSetResolution('low')
+        if (USE_VISION):
+            # Set the camera resolution
+            self.IO.cameraSetResolution('low')
 
-        while OK():
-            # Grab the image
-            self.IO.cameraGrab()
-
-            # Read the image
-            cameraImage = cv2.cvtColor(self.IO.cameraRead(), cv2.COLOR_BGR2GRAY)
-
-            # Create SceneData instance
-            sceneData = SceneData(cameraImage)
-
-            # look for resources in the scene
-            for resourceData in self.resourcesData:
-                FeatureMatching(self, resourceData, sceneData)
-
-            # Dump next couple of frames...
-            for i in range(0, 10):
+            while OK():
+                # Grab the image
                 self.IO.cameraGrab()
+
+                # Read the image
+                cameraImage = cv2.cvtColor(self.IO.cameraRead(), cv2.COLOR_BGR2GRAY)
+
+                # Create SceneData instance
+                sceneData = SceneData(cameraImage)
+
+                # look for resources in the scene
+                self.visibleResources = [0, 0, 0, 0]
+                for resourceData in self.resourcesData:
+                    FeatureMatching(self, resourceData, sceneData)
+
+                print self.visibleResources
+
+                # Dump next couple of frames...
+                for i in range(0, 10):
+                    self.IO.cameraGrab()
 #
 
 ### eof ###
