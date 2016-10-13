@@ -37,6 +37,7 @@ def FeatureMatching(self, resourceData, sceneData):
     	sceneData.image = cv2.polylines(sceneData.image, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
         print "%s found!" % resourceData.name
 
+        # save which resources are visible
         for i in range(len(RESOURCE_NAMES)):
             if resourceData.name == RESOURCE_NAMES[i]:
                 self.visibleResources[i] = 1

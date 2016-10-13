@@ -24,6 +24,8 @@ class Toddler:
 
         # Store the instance of IO for later
         self.IO = IO
+        self.IO.servoEngage()
+        self.ResetServo()
 
         # Add more initialisation code here
         self.hallCounter = 0
@@ -36,7 +38,7 @@ class Toddler:
 
     def ResourceIsVisible(self):
         for visible in self.visibleResources:
-            if (visible):
+            if visible:
                 return True
 
 
@@ -57,6 +59,14 @@ class Toddler:
             #print
             #print self.lastInputs
             #print self.inputs
+            if self.ResourceIsVisible():
+                for i in range(4):
+                    if self.visibleResources[i]:
+                        if i > 1:
+                            i += 1
+                        self.SetServoPosition(i)
+            else:
+                self.ResetServo()
 
             if self.lastInputs[7] != self.inputs[7]:
                 self.hallCounter += 1
@@ -69,25 +79,31 @@ class Toddler:
             else:
                 self.MoveForward()
 
+    # Temporary code for MM1
+    def ResetServo(self):
+        self.SetServoPosition(2)
+    def SetServoPosition(self, position):
+        self.IO.servoSet(position * 180 / 5 + 10)
+        #self.IO.servoDisengage()
 
     def ObstacleToTheRight(self):
-        return self.sensors[0] > 300
+        return self.sensors[0] > 200
     def ObstacleToTheLeft(self):
-        return self.sensors[1] > 300
+        return self.sensors[1] > 200
 
 
     def STOP(self):
         self.IO.setMotors(0, 0)
 
     def MoveBackwards(self):
-        self.IO.setMotors(100, -100)
+        self.IO.setMotors(70, 70)
     def MoveForward(self):
-        self.IO.setMotors(-100, 100)
+        self.IO.setMotors(70, 70)
 
     def TurnLeft(self):
-        self.IO.setMotors(100, 100)
+        self.IO.setMotors(-70, 70)
     def TurnRight(self):
-        self.IO.setMotors(-100, -100)
+        self.IO.setMotors(70, -70)
 
 
     # This is a callback that will be called repeatedly.
