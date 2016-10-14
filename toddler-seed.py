@@ -5,6 +5,7 @@ import cv2
 import time
 
 from featureMatching import *
+from random import randint
 from resourceData import *
 from sceneData import *
 from settings import *
@@ -54,30 +55,27 @@ class Toddler:
                 self.lastInputs = self.inputs
 
             self.sensors = self.IO.getSensors()
-            print self.sensors
+            #print self.sensors
 
             #print
             #print self.lastInputs
             #print self.inputs
-            if self.ResourceIsVisible():
-                for i in range(4):
-                    if self.visibleResources[i]:
-                        if i > 1:
-                            i += 1
-                        self.SetServoPosition(i)
-            else:
-                self.ResetServo()
 
             if self.lastInputs[7] != self.inputs[7]:
                 self.hallCounter += 1
             #print 'Travelled distance: %d' % self.hallCounter
 
-            if self.ObstacleToTheRight():
-                self.TurnLeft()
-            elif self.ObstacleToTheLeft():
-                self.TurnRight()
+            if self.RightWhisker():
+                self.EvadeRight()
+            elif self.LeftWhisker():
+                self.EvadeLeft()
             else:
-                self.MoveForward()
+                if self.ObstacleToTheRight():
+                    self.TurnLeft()
+                elif self.ObstacleToTheLeft():
+                    self.TurnRight()
+                else:
+                    self.MoveForward()
 
     # Temporary code for MM1
     def ResetServo(self):
@@ -86,24 +84,34 @@ class Toddler:
         self.IO.servoSet(position * 180 / 5 + 10)
         #self.IO.servoDisengage()
 
+    def RightWhisker(self):
+        return self.inputs[0]
+    def LeftWhisker(self):
+        return self.inputs[1]
+
     def ObstacleToTheRight(self):
-        return self.sensors[0] > 200
+        return self.sensors[0] > IR_THRESHOLD
     def ObstacleToTheLeft(self):
-        return self.sensors[1] > 200
+        return self.sensors[1] > IR_THRESHOLD
 
 
     def STOP(self):
         self.IO.setMotors(0, 0)
 
     def MoveBackwards(self):
-        self.IO.setMotors(70, 70)
+        self.IO.setMotors(-70, -70)
     def MoveForward(self):
         self.IO.setMotors(70, 70)
 
+    def EvadeLeft(self):
+        self.IO.setMotors(-70, 0)
+    def EvadeRight(self):
+        self.IO.setMotors(0, -70)
+
     def TurnLeft(self):
-        self.IO.setMotors(-70, 70)
-    def TurnRight(self):
         self.IO.setMotors(70, -70)
+    def TurnRight(self):
+        self.IO.setMotors(-70, 70)
 
 
     # This is a callback that will be called repeatedly.
@@ -111,7 +119,7 @@ class Toddler:
     def Vision(self, OK):
         if (USE_VISION):
             # Set the camera resolution
-            self.IO.cameraSetResolution('low')
+            self.IO.cameraSetResolution('medium')
 
             while OK():
                 # Grab the image
@@ -129,6 +137,15 @@ class Toddler:
                     FeatureMatching(self, resourceData, sceneData)
 
                 print self.visibleResources
+
+                if self.ResourceIsVisible():
+                    for i in range(4):
+                        if self.visibleResources[i]:
+                            if i > 1:
+                                i += 1
+                            self.SetServoPosition(i)
+                else:
+                    self.ResetServo()
 
                 # Dump next couple of frames...
                 for i in range(0, 10):
