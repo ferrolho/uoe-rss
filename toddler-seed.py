@@ -2,6 +2,7 @@
 __TODDLER_VERSION__ = "1.0.0"
 
 import cv2
+import numpy as np
 import time
 
 from featureMatching import *
@@ -114,6 +115,59 @@ class Toddler:
         self.IO.setMotors(-70, 70)
 
 
+    def ScanForCubeFarAway(self, rawCameraImage):
+        hsv = cv2.cvtColor(rawCameraImage, cv2.COLOR_BGR2HSV)
+
+        # define range of blue color in HSV
+        lower_bound = np.array([100, 40, 0])
+        upper_bound = np.array([130, 255, 255])
+
+        # threshold the HSV image to get only blue colors
+        img = cv2.inRange(hsv, lower_bound, upper_bound)
+
+        kernel = np.ones((5, 5), np.uint8)
+        img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+        img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+
+        ret, thresh = cv2.threshold(img, 127, 255, 0)
+        im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        if len(contours) > 0:
+            cnt = contours[0]
+            M = cv2.moments(cnt)
+
+            # centroid coords
+            cx = int(M['m10'] / M['m00'])
+            cy = int(M['m01'] / M['m00'])
+
+            cv2.line(rawCameraImage, (cx, cy), (cx, cy), (0, 0, 255), 20)
+            print cx, cy
+
+        self.IO.imshow('raw', rawCameraImage)
+
+
+    def ScanForImages(self):
+        cameraImage = cv2.resize(rawCameraImage, None, fx = 0.6, fy = 0.6, interpolation = cv2.INTER_CUBIC)
+        cameraImage = cv2.cvtColor(cameraImage, cv2.COLOR_BGR2GRAY)
+
+        # Create SceneData instance
+        sceneData = SceneData(cameraImage)
+
+        # look for resources in the scene
+        self.visibleResources = [0, 0, 0, 0]
+        for resourceData in self.resourcesData:
+            FeatureMatching(self, resourceData, sceneData)
+
+        if self.ResourceIsVisible():
+            for i in range(4):
+                if self.visibleResources[i]:
+                    if i > 1:
+                        i += 1
+                    self.SetServoPosition(i)
+        else:
+            self.ResetServo()
+
+
     # This is a callback that will be called repeatedly.
     # It has its dedicated thread so you can keep blocking it.
     def Vision(self, OK):
@@ -126,26 +180,9 @@ class Toddler:
                 self.IO.cameraGrab()
 
                 # Read the image
-                cameraImage = cv2.cvtColor(self.IO.cameraRead(), cv2.COLOR_BGR2GRAY)
+                rawCameraImage = self.IO.cameraRead()
 
-                # Create SceneData instance
-                sceneData = SceneData(cameraImage)
-
-                # look for resources in the scene
-                self.visibleResources = [0, 0, 0, 0]
-                for resourceData in self.resourcesData:
-                    FeatureMatching(self, resourceData, sceneData)
-
-                print self.visibleResources
-
-                if self.ResourceIsVisible():
-                    for i in range(4):
-                        if self.visibleResources[i]:
-                            if i > 1:
-                                i += 1
-                            self.SetServoPosition(i)
-                else:
-                    self.ResetServo()
+                self.ScanForCubeFarAway(rawCameraImage)
 
                 # Dump next couple of frames...
                 for i in range(0, 10):
