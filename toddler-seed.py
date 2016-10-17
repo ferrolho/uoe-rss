@@ -32,11 +32,25 @@ class Toddler:
 		# Add more initialisation code here
 		self.hallCounter = 0
 
+		self.resetTurnSleep()
+
 		self.resetVisionFlags()
 
 		self.resourcesData = []
 		InitResources(self.resourcesData)
 
+
+	def resetTurnSleep(self):
+		# 0 - none, 1 - just turned left, 2 - just turned right
+		self.turnAux = 0
+		self.initHallCount = 0
+		self.turnSleep = 0
+	def incAndSleep(self):
+		if self.initHallCount == 0:
+			self.initHallCount = self.hallCounter
+		self.turnSleep += 0.2
+		time.sleep(self.turnSleep)
+		print 'Incremented turnSleep to ', self.turnSleep
 
 	def ResourceIsVisible(self):
 		for visible in self.visibleResources:
@@ -56,11 +70,12 @@ class Toddler:
 				self.lastInputs = self.inputs
 
 			self.sensors = self.IO.getSensors()
+
 			#print self.sensors
 
 			#print
 			#print self.lastInputs
-			#print self.inputs
+			print self.inputs
 
 			if self.lastInputs[7] != self.inputs[7]:
 				self.hallCounter += 1
@@ -73,9 +88,21 @@ class Toddler:
 			else:
 				if self.ObstacleToTheRight():
 					self.TurnLeft()
+
+					if self.turnAux == 2:
+						self.incAndSleep()
+					self.turnAux = 1
 				elif self.ObstacleToTheLeft():
 					self.TurnRight()
+
+					if self.turnAux == 1:
+						self.incAndSleep()
+					self.turnAux = 2
 				else:
+					if self.turnSleep > 0:
+						if self.hallCounter - self.initHallCount > 2:
+							self.resetTurnSleep()
+
 					self.MoveForward()
 
 	# Temporary code for MM1
@@ -94,9 +121,9 @@ class Toddler:
 	def SetServoToNone(self):
 		self.SetServoPosition(5)
 
-	def RightWhisker(self):
-		return self.inputs[0]
 	def LeftWhisker(self):
+		return self.inputs[0]
+	def RightWhisker(self):
 		return self.inputs[1]
 
 	def ObstacleToTheRight(self):
@@ -109,19 +136,21 @@ class Toddler:
 		self.IO.setMotors(0, 0)
 
 	def MoveBackwards(self):
-		self.IO.setMotors(-70, -70)
+		self.IO.setMotors(-MOTOR_MAX_SPEED, -MOTOR_MAX_SPEED)
 	def MoveForward(self):
-		self.IO.setMotors(70, 70)
+		self.IO.setMotors(MOTOR_MAX_SPEED, MOTOR_MAX_SPEED)
 
 	def EvadeLeft(self):
-		self.IO.setMotors(-70, 0)
+		self.IO.setMotors(-MOTOR_MAX_SPEED, -MOTOR_LOW_SPEED)
+		time.sleep(1.5)
 	def EvadeRight(self):
-		self.IO.setMotors(0, -70)
+		self.IO.setMotors(-MOTOR_LOW_SPEED, -MOTOR_MAX_SPEED)
+		time.sleep(1.5)
 
 	def TurnLeft(self):
-		self.IO.setMotors(70, -70)
+		self.IO.setMotors(MOTOR_MED_SPEED, -MOTOR_MED_SPEED)
 	def TurnRight(self):
-		self.IO.setMotors(-70, 70)
+		self.IO.setMotors(-MOTOR_MED_SPEED, MOTOR_MED_SPEED)
 
 
 	def ScanForCubeFarAway(self, rawCameraImage):
@@ -155,7 +184,7 @@ class Toddler:
 			self.objOfInterestFound = True
 
 			cv2.line(croppedCameraImage, (cx, cy), (cx, cy), (0, 0, 255), 20)
-			print cx, cy
+			#print cx, cy
 
 		self.IO.imshow('raw', croppedCameraImage)
 
