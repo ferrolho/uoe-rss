@@ -192,7 +192,6 @@ class Toddler:
 
 				# Read the image
 				rawCameraImage = self.IO.cameraRead()
-				#rawCameraImage = cv2.resize(rawCameraImage, None, fx = 0.85, fy = 0.85, interpolation = cv2.INTER_CUBIC)
 
 				self.resetVisionFlags()
 
