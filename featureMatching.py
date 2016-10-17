@@ -15,48 +15,48 @@ flann = cv2.FlannBasedMatcher(index_params, search_params)
 sift = cv2.xfeatures2d.SIFT_create()
 
 def FeatureMatching(self, resourceData, sceneData):
-    matches = flann.knnMatch(resourceData.descriptors, sceneData.descriptors, k = 2)
+	matches = flann.knnMatch(resourceData.descriptors, sceneData.descriptors, k = 2)
 
-    # store all the good matches as per Lowe's ratio test.
-    good = []
-    for m, n in matches:
-    	if m.distance < 0.7 * n.distance:
-    		good.append(m)
+	# store all the good matches as per Lowe's ratio test.
+	good = []
+	for m, n in matches:
+		if m.distance < 0.7 * n.distance:
+			good.append(m)
 
-    if len(good) > MIN_MATCH_COUNT:
-    	src_pts = np.float32([ resourceData.keypoints[m.queryIdx].pt for m in good ]).reshape(-1, 1, 2)
-    	dst_pts = np.float32([ sceneData.keypoints[m.trainIdx].pt for m in good ]).reshape(-1, 1, 2)
+	matchesMask = None
 
-    	M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
-    	matchesMask = mask.ravel().tolist()
+	if len(good) > MIN_MATCH_COUNT:
+		src_pts = np.float32([ resourceData.keypoints[m.queryIdx].pt for m in good ]).reshape(-1, 1, 2)
+		dst_pts = np.float32([ sceneData.keypoints[m.trainIdx].pt for m in good ]).reshape(-1, 1, 2)
 
-    	h, w = resourceData.image.shape
-    	pts = np.float32([ [0, 0], [0, h-1], [w-1, h-1], [w-1, 0] ]).reshape(-1, 1, 2)
-    	dst = cv2.perspectiveTransform(pts, M)
+		M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
 
-    	sceneData.image = cv2.polylines(sceneData.image, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
-        print "%s found!" % resourceData.name
+		if mask is not None:
+			matchesMask = mask.ravel().tolist()
 
-        # save which resources are visible
-        for i in range(len(RESOURCE_NAMES)):
-            if resourceData.name == RESOURCE_NAMES[i]:
-                self.visibleResources[i] = 1
+			h, w = resourceData.image.shape
+			pts = np.float32([ [0, 0], [0, h-1], [w-1, h-1], [w-1, 0] ]).reshape(-1, 1, 2)
+			dst = cv2.perspectiveTransform(pts, M)
 
-    else:
-    	#print "Not enough matches are found - %d/%d" % (len(good), MIN_MATCH_COUNT)
-    	matchesMask = None
+			sceneData.image = cv2.polylines(sceneData.image, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+			print "%s found!" % resourceData.name
 
-    draw_params = dict(matchColor = (0, 255, 0), # draw matches in green color
-                       singlePointColor = None,
-                       matchesMask = matchesMask, # draw only inliers
-                       flags = 2)
+			# save which resources are visible
+			for i in range(len(RESOURCE_NAMES)):
+				if resourceData.name == RESOURCE_NAMES[i]:
+					self.visibleResources[i] = 1
 
-    imgMatches = cv2.drawMatches(resourceData.image, resourceData.keypoints,
-                                 sceneData.image, sceneData.keypoints,
-                                 good, None, **draw_params)
+	draw_params = dict(matchColor = (0, 255, 0), # draw matches in green color
+					   singlePointColor = None,
+					   matchesMask = matchesMask, # draw only inliers
+					   flags = 2)
 
-    # Display the image
-    self.IO.imshow(resourceData.name, imgMatches)
+	imgMatches = cv2.drawMatches(resourceData.image, resourceData.keypoints,
+								 sceneData.image, sceneData.keypoints,
+								 good, None, **draw_params)
+
+	# Display the image
+	self.IO.imshow(resourceData.name, imgMatches)
 #
 
 ### eof ###
