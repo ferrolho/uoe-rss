@@ -84,15 +84,15 @@ The following row of images/samples is a visual representation of the \textit{in
     \includegraphics[width=\textwidth]{res/32.png}
 \end{center}
 
-Firstly, the program should fetch the frames from the live camera feed - the first image from the row of images above is an example of a frame fetched from the camera.\\
-Afterwards, it should do a \textit{image segmentation}, by applying a \textit{background removal} technique - second image, counting from the left, in the images row above.\\
-At this point, it is useful to turn the image into a binary image - middle image sample.\\
-Then, two \textit{morphological transformations} are applied to remove the noise left in the frame - also known as \textit{morphological closing} and \textit{opening} - penultimate image sample.\\
-Finally, the last image from the samples row above shows the \textit{region of interest} - region in blue, activated by the passing car (red segment of the detection region).
+Firstly the program fetches the frames from the live camera feed - the first image from the row of images above is an example of a frame fetched from the camera.\\
+Afterwards it does a \textit{image segmentation} by applying a \textit{background removal} technique - second image, counting from the left, in the images row above.\\
+At this point it is useful to turn the image into a binary image - middle image sample.\\
+Then two \textit{morphological transformations} are applied to remove the noise left in the frame - also known as \textit{morphological closing} and \textit{opening} - penultimate image sample.\\
+Finally the last image from the samples row above shows the \textit{region of interest} - region in blue, activated by the passing car (red segment of the detection region).
 
 The general idea is to count every time a white spot is detected in the blue line - actually, to introduce some tolerance, it should not be a line with a single pixel thickness, rather a 5 pixels thick line, for example.
 
-Furthermore, to save computation time, and since we only care for what is going on inside the blue region, we can \textit{crop} everything else besides that region right after the frame capture. Nonetheless, I used the entire frame in the above row of samples (no cropping) for better understanding of the main idea.
+Furthermore, to save computation time, and since we only care for what is going on inside the blue region, we can \textit{crop} everything else besides that region right after the frame capture. Nonetheless, the entire frame of each of the samples above is used (no cropping) for better understanding of the main idea.
 
 \begin{algorithm}
     \caption{Car counter program}\label{carCounterProg}
@@ -112,22 +112,12 @@ Furthermore, to save computation time, and since we only care for what is going 
                         \State $ carPassing \leftarrow \texttt{True} $
                         \State $ counter \leftarrow counter + 1 $
                     \EndIf
-
-        \algstore{bkbreak}
-    \end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-    \caption{Continuation}
-    \begin{algorithmic}[1]
-        \algrestore{bkbreak}
-
                 \ElsIf{carPassing}
                     \State $ carPassing \leftarrow \texttt{False} $
                 \EndIf
             \EndLoop
         \EndProcedure
-        
+
         \Statex
 
         \Function {SubtractBg}{$ frame $}
