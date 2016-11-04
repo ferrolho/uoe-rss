@@ -2,6 +2,85 @@
 
 \subsection{(10 marks)}
 
+\begin{center}
+    $ q =
+    \begin{pmatrix}
+         0.66 \\
+        -0.44 \\
+         1.06 \\
+         1.33
+    \end{pmatrix} $
+\end{center}
+
+\begin{align*}
+    T_{base \rightarrow L_1} &=
+        \begin{bmatrix}
+            cos(q_1) & - sin(q_1) & 0 & 0 \\
+            sin(q_1) &   cos(q_1) & 0 & 0 \\
+                   0 &          0 & 1 & 0.16 \\
+                   0 &          0 & 0 & 1 \\
+        \end{bmatrix} \\
+    \\
+    T_{L_1 \rightarrow L_2} &=
+        \begin{bmatrix}
+              cos(q_2) & 0 & sin(q_2) & 0 \\
+                     0 & 1 &        0 & 0 \\
+            - sin(q_2) & 0 & cos(q_2) & 0.15 \\
+                     0 & 0 &        0 & 1 \\
+        \end{bmatrix} \\
+    \\
+    T_{L_2 \rightarrow L_3} &=
+        \begin{bmatrix}
+              cos(q_3) & 0 & sin(q_3) & 0 \\
+                     0 & 1 &        0 & 0 \\
+            - sin(q_3) & 0 & cos(q_3) & 0.2 \\
+                     0 & 0 &        0 & 1 \\
+        \end{bmatrix} \\
+    \\
+    T_{L_3 \rightarrow L_4} &=
+        \begin{bmatrix}
+              cos(q_4) & 0 & sin(q_4) & 0 \\
+                     0 & 1 &        0 & 0 \\
+            - sin(q_4) & 0 & cos(q_4) & 0.15 \\
+                     0 & 0 &        0 & 1 \\
+        \end{bmatrix} \\
+    \\
+    T_{L_4 \rightarrow gripper} &=
+        \begin{bmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & 1 & 0 & 0 \\
+            0 & 0 & 1 & 0.35 \\
+            0 & 0 & 0 & 1
+        \end{bmatrix}
+\end{align*}
+
+\begin{align*}
+    T_{base \rightarrow gripper} &=
+        T_{base \rightarrow L_1} \cdot
+        T_{L_1 \rightarrow L_2} \cdot
+        T_{L_2 \rightarrow L_3} \cdot
+        T_{L_3 \rightarrow L_4} \cdot
+        T_{L_4 \rightarrow gripper}\\
+        &=
+        \begin{bmatrix}
+            -0.29243998 & -0.61311685 &  0.73387096 & 0.25840905 \\
+            -0.22696411 &  0.78999223 &  0.56956086 & 0.20055253 \\
+            -0.92895972 &  0          & -0.37018083 & 0.48346881 \\
+             0          &  0          &  0          & 1
+        \end{bmatrix}
+\end{align*}
+
+And therefore:
+
+\begin{center}
+    $ \boldsymbol{y_t} =
+        \begin{bmatrix}
+            0.25840905 \\
+            0.20055253 \\
+            0.48346881
+        \end{bmatrix} $
+\end{center}
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \subsection{(10 marks)}

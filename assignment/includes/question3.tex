@@ -161,4 +161,8 @@ Furthermore, to save computation time, and since we only care for what is going 
 
 \subsection{Shape Recognition (10 marks)}
 
+The first thing to do in order to narrow the search results by 50\% is to check if the card has \textit{red} or \textit{black} symbols - a simple \textit{RGB normalization} can be used. After this step the search results are narrowed either to \textit{spades and clubs}, or \textit{hearts and diamonds}.
+
+A Bayes classifier needs to be trained using \textit{4 classes}, one for each suit.
+
 \newpage
