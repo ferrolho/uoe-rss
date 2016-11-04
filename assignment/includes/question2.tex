@@ -33,8 +33,81 @@ The \textit{least squares} (LS) estimate is:
     &= \text{arg } \min_x (\textbf{y} - \textbf{H} x)^T (\textbf{y} - \textbf{H} x)
 \end{align*}
 
+\clearpage
+
+Direct differentiation and setting the result to zero gives the estimate:
+
+\begin{align*}
+    \hat{x}^{LS} &= (\textbf{H}^T\textbf{H})^{-1} \textbf{H}^T \textbf{y} \\
+\end{align*}
+
+%\begin{algorithm}
+%    \begin{algorithmic}[1]
+%        \Procedure{}{}
+%            \State $ t \leftarrow 0 $
+%            \While{$t \le t_f$}
+%            \EndWhile
+%        \EndProcedure
+%    \end{algorithmic}
+%\end{algorithm}
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \subsection{(20 marks)}
+
+The dynamics of the system can be formulated as follows:
+
+\begin{equation*}
+    m \ddot{z}(t) = -\gamma \dot{z}(t) - k z(t)
+\end{equation*}
+
+Given measurements $z_1$, $\alpha_1$ and $z_2$, $\alpha_2$:
+
+\begin{align*}
+    \hat{x} &=
+    [\frac{\sigma^2_{z_2}}{\sigma^2_{z_1} + \sigma^2_{z_2}}] z_1 +
+    [\frac{\sigma^2_{z_1}}{\sigma^2_{z_1} + \sigma^2_{z_2}}] z_2 \\
+    &=
+    [\frac{\alpha^4_{z_2}}{\alpha^4_{z_1} + \alpha^4_{z_2}}] z_1 +
+    [\frac{\alpha^4_{z_1}}{\alpha^4_{z_1} + \alpha^4_{z_2}}] z_2 \\
+\end{align*}
+
+The majority of sensors are subject to high frequency noise, so a low-pass filter should be used to clear the noise from both measurements.
+
+Since the on-board transducer has high accuracy it might not need to pass through the low-pass filter. Nonetheless, if it does need to go through the filter, its threshold would be much lower than the one used on the external vision sensor.
+
+\bigskip
+
+The identification problem can be formulated as follows:
+
+\begin{align*}
+    w_0 &= \sqrt{\frac{k}{m}} \\
+    \\
+    \xi &= \frac{\gamma}{2\sqrt{km}} \\
+\end{align*}
+
+\clearpage
+
+For a series of $k$ measurements, $1$, $2$, \dots $k$, construct the least square problem:
+
+\begin{equation*}
+    \begin{bmatrix}
+        \ddot{z_1} \\[0.5em]
+        \ddot{z_2} \\[0.5em]
+        \vdots     \\[0.5em]
+        \ddot{z_k} \\[0.5em]
+    \end{bmatrix} \\
+    = \\
+    \begin{bmatrix}
+        - z_1, - 2 \dot{z_1} \\[0.5em]
+        - z_2, - 2 \dot{z_2} \\[0.5em]
+        \vdots               \\[0.5em]
+        - z_k, - 2 \dot{z_k} \\[0.5em]
+    \end{bmatrix} \\
+    \begin{bmatrix}
+        w^2_0 \\[0.5em]
+        \xi w_0 \\[0.5em]
+    \end{bmatrix}  \\
+\end{equation*}
 
 \newpage
