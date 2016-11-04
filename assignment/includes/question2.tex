@@ -2,9 +2,36 @@
 
 \subsection{(10 marks)}
 
+Real world applications require signal filtering because they are not controlled environments - conveyor belts in factories are ideal controlled environments, but most of real world applications are not like that.\\
+Since the environment is not controlled, sensors are subjected to events which introduce unwanted noise. Signal filtering is crucial to remove this undesired noise, and preserve the important signal information as clearly as possible.
+
+The types of filters that are commonly used are:
+
+\begin{itemize}
+    \item \textbf{Low-pass filter} - low frequencies lower than cut-off frequency are passed
+    \item \textbf{High-pass filter} - high frequencies higher than cut-off frequency are passed
+    \item \textbf{Band-pass filter} - only frequencies within a frequency band are passed
+    \item \textbf{Band-stop filter} - only frequencies within a frequency band are attenuated
+    \item \textbf{Notch filter} - rejects a particular frequency
+\end{itemize}
+
+The problem described is a noise reduction/removal problem, and as such a low-pass filter should be used. If the acceleration frequency is known, then the cut-off frequency can be set to a value close to it.
+
 % - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 \subsection{(10 marks)}
+
+State estimation is the process by which the state of a system is calculated. In real world applications, systems often have multiple measurements from different sensors built into them. These measurements may vary from one another, and in such cases the system still needs to be able to  predict the real system state as close to reality as possible.
+
+State estimation is important for scenarios like that: by weighting all the variance of each measurement and estimating the most likely state for the system.
+
+The \textit{least squares} (LS) estimate is:
+
+\begin{align*}
+    \hat{x}^{LS}
+    &= \text{arg } \min_x \sum_{k=1}^{N} (y_k - H_k x)^T (y_k - H_k x) \\
+    &= \text{arg } \min_x (\textbf{y} - \textbf{H} x)^T (\textbf{y} - \textbf{H} x)
+\end{align*}
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
