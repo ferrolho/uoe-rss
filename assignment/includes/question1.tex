@@ -87,31 +87,36 @@ And therefore:
 
 \subsection{(10 marks)}
 
-Kinematic map $ y = \Phi(q) $:
-
-\begin{center}
-    $ y =
-        \begin{bmatrix}
-            x \\
-            y \\
-            z
-        \end{bmatrix}
-        =
-        \begin{bmatrix}
-            x \\
-            y \\
-            z
-        \end{bmatrix} $
-\end{center}
-
 \begin{align*}
-    J(q) &=
-        \begin{bmatrix}
-            \frac{\partial x}{\partial q_1} & \frac{\partial x}{\partial q_2} & \frac{\partial x}{\partial q_3} \\[0.5em]
-            \frac{\partial y}{\partial q_1} & \frac{\partial y}{\partial q_2} & \frac{\partial y}{\partial q_3} \\[0.5em]
-            \frac{\partial z}{\partial q_1} & \frac{\partial z}{\partial q_2} & \frac{\partial z}{\partial q_3} \\[0.5em]
-        \end{bmatrix}\\
-        %&= 14
+    J(q) &= \begin{bmatrix}
+        \frac{\partial x}{\partial q_1} & \frac{\partial x}{\partial q_2} & \frac{\partial x}{\partial q_3} \\[0.5em]
+        \frac{\partial y}{\partial q_1} & \frac{\partial y}{\partial q_2} & \frac{\partial y}{\partial q_3} \\[0.5em]
+        \frac{\partial z}{\partial q_1} & \frac{\partial z}{\partial q_2} & \frac{\partial z}{\partial q_3} \\[0.5em]
+    \end{bmatrix} \\
+    \\
+    &= \begin{bmatrix}
+        -sin(q_1) \cdot cos(q_2 + q_3 + q_4) &
+        -sin(q_2 + q_3 + q_4) \cdot cos(q_1) &
+        -sin(q_2 + q_3 + q_4) \cdot cos(q_1) \\
+        -cos(q_1) &
+                0 &
+                0 \\
+        -sin(q_1) \cdot sin(q_2 + q_3 + q_4) &
+         cos(q_1) \cdot cos(q_2 + q_3 + q_4) &
+         cos(q_1) \cdot cos(q_2 + q_3 + q_4) \\
+    \end{bmatrix} \\
+    \\
+    &= \begin{bmatrix}
+         0.22696410597901  &
+        -0.733870958227063 &
+        -0.733870958227063 \\
+        -0.789992231497365 &
+                0          &
+                0          \\
+        -0.569560856073311 &
+        -0.292439981016753 &
+        -0.292439981016753 \\
+    \end{bmatrix} \\
 \end{align*}
 
 % - - - - - - - - - - - - - - - - - - - - - - - - - - -
