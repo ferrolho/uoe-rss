@@ -112,6 +112,11 @@ class Toddler:
 
 					self.MoveForward()
 
+			self.update()
+
+	def update(self):
+		self.gripper.update()
+
 	def LeftWhisker(self):
 		return self.inputs[0]
 	def RightWhisker(self):

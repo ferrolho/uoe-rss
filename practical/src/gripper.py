@@ -1,3 +1,6 @@
+SERVO_POS_OPEN  = 130
+SERVO_POS_CLOSE = 70
+
 class Gripper:
 	def __init__(self, IO):
 		self.IO = IO
@@ -8,11 +11,11 @@ class Gripper:
 		self.IO.servoDisengage()
 
 	def close(self):
-		self.IO.servoSet(70)
 		self.opened = False
 	def open(self):
-		self.IO.servoSet(130)
 		self.opened = True
+	def update(self):
+		self.IO.servoSet(SERVO_POS_OPEN if self.isOpened() else SERVO_POS_CLOSE)
 
 	def isOpened(self):
 		return self.opened
