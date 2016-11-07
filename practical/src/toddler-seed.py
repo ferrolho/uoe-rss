@@ -6,6 +6,7 @@ import numpy as np
 import time
 
 from featureMatching import *
+from gripper import Gripper
 from random import randint
 from resourceData import *
 from sceneData import *
@@ -26,8 +27,8 @@ class Toddler:
 
 		# Store the instance of IO for later
 		self.IO = IO
-		self.IO.servoEngage()
-		self.SetServoToNone()
+
+		self.gripper = Gripper(self.IO)
 
 		# Add more initialisation code here
 		self.hallCounter = 0
@@ -71,11 +72,16 @@ class Toddler:
 
 			self.sensors = self.IO.getSensors()
 
-			#print self.sensors
+			print self.sensors
+
+			if self.GripperSensorTriggered():
+				self.gripper.close()
+			else:
+				self.gripper.open()
 
 			#print
 			#print self.lastInputs
-			print self.inputs
+			#print self.inputs
 
 			if self.lastInputs[7] != self.inputs[7]:
 				self.hallCounter += 1
@@ -87,6 +93,7 @@ class Toddler:
 				self.EvadeLeft()
 			else:
 				if self.ObstacleToTheRight():
+					self.gripper.open()
 					self.TurnLeft()
 
 					if self.turnAux == 2:
@@ -105,22 +112,6 @@ class Toddler:
 
 					self.MoveForward()
 
-	# Temporary code for MM1
-	#
-	# 0 - mario
-	# 1 - wario
-	# 2 - mario
-	# 3 - mario
-	# 4 - obj of interest
-	# 5 - none
-	def SetServoPosition(self, position):
-		self.IO.servoSet(position * 180 / 6 + 10)
-		#self.IO.servoDisengage()
-	def SetServoToObjOfInterest(self):
-		self.SetServoPosition(4)
-	def SetServoToNone(self):
-		self.SetServoPosition(5)
-
 	def LeftWhisker(self):
 		return self.inputs[0]
 	def RightWhisker(self):
@@ -130,7 +121,8 @@ class Toddler:
 		return self.sensors[0] > IR_THRESHOLD
 	def ObstacleToTheLeft(self):
 		return self.sensors[1] > IR_THRESHOLD
-
+	def GripperSensorTriggered(self):
+		return self.sensors[3] < 20
 
 	def STOP(self):
 		self.IO.setMotors(0, 0)
@@ -227,16 +219,6 @@ class Toddler:
 				self.ScanForImages(rawCameraImage)
 				if not self.ResourceIsVisible():
 					self.ScanForCubeFarAway(rawCameraImage)
-
-				# Temporary MM1 code
-				if self.ResourceIsVisible():
-					for i in range(4):
-						if self.visibleResources[i]:
-							self.SetServoPosition(i)
-				elif self.objOfInterestFound:
-					self.SetServoToObjOfInterest()
-				else:
-					self.SetServoToNone()
 
 				# Dump next couple of frames...
 				for i in range(0, 10):
