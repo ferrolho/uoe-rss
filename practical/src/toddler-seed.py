@@ -3,7 +3,6 @@ __TODDLER_VERSION__ = "1.0.0"
 
 import cv2
 import numpy as np
-import time
 
 from featureMatching import *
 from gripper import Gripper
@@ -11,6 +10,7 @@ from random import randint
 from resourceData import *
 from sceneData import *
 from settings import *
+from whiskers import *
 
 
 def InitResources(resources):
@@ -21,14 +21,12 @@ def InitResources(resources):
 # Main Toddler class
 class Toddler:
 	# Initialiser
-	def __init__(self,IO):
-		# Print a message
-		print 'I am a toddler playing in a sandbox'
-
+	def __init__(self, IO):
 		# Store the instance of IO for later
 		self.IO = IO
 
-		self.gripper = Gripper(self.IO)
+		self.gripper  = Gripper(self.IO)
+		self.whiskers = Whiskers(self.IO)
 
 		# Add more initialisation code here
 		self.hallCounter = 0
@@ -71,8 +69,7 @@ class Toddler:
 				self.lastInputs = self.inputs
 
 			self.sensors = self.IO.getSensors()
-
-			print self.sensors
+			#print self.sensors
 
 			if self.GripperSensorTriggered():
 				self.gripper.close()
@@ -81,45 +78,39 @@ class Toddler:
 
 			#print
 			#print self.lastInputs
-			#print self.inputs
+
+			if self.whiskers.left.triggered() or self.whiskers.right.triggered():
+				print self.whiskers
+			else:
+				print self.inputs
 
 			if self.lastInputs[7] != self.inputs[7]:
 				self.hallCounter += 1
 			#print 'Travelled distance: %d' % self.hallCounter
 
-			if self.RightWhisker():
-				self.EvadeRight()
-			elif self.LeftWhisker():
-				self.EvadeLeft()
+			if self.ObstacleToTheRight():
+				self.TurnLeft()
+
+				if self.turnAux == 2:
+					self.incAndSleep()
+				self.turnAux = 1
+			elif self.ObstacleToTheLeft():
+				self.TurnRight()
+
+				if self.turnAux == 1:
+					self.incAndSleep()
+				self.turnAux = 2
 			else:
-				if self.ObstacleToTheRight():
-					self.TurnLeft()
+				if self.turnSleep > 0:
+					if self.hallCounter - self.initHallCount > 2:
+						self.resetTurnSleep()
 
-					if self.turnAux == 2:
-						self.incAndSleep()
-					self.turnAux = 1
-				elif self.ObstacleToTheLeft():
-					self.TurnRight()
-
-					if self.turnAux == 1:
-						self.incAndSleep()
-					self.turnAux = 2
-				else:
-					if self.turnSleep > 0:
-						if self.hallCounter - self.initHallCount > 2:
-							self.resetTurnSleep()
-
-					self.MoveForward()
+				self.MoveForward()
 
 			self.update()
 
 	def update(self):
 		self.gripper.update()
-
-	def LeftWhisker(self):
-		return self.inputs[0]
-	def RightWhisker(self):
-		return self.inputs[1]
 
 	def ObstacleToTheRight(self):
 		return self.sensors[0] > IR_THRESHOLD
@@ -138,10 +129,8 @@ class Toddler:
 
 	def EvadeLeft(self):
 		self.IO.setMotors(-MOTOR_MAX_SPEED, -MOTOR_LOW_SPEED)
-		time.sleep(1.5)
 	def EvadeRight(self):
 		self.IO.setMotors(-MOTOR_LOW_SPEED, -MOTOR_MAX_SPEED)
-		time.sleep(1.5)
 
 	def TurnLeft(self):
 		self.IO.setMotors(MOTOR_MED_SPEED, -MOTOR_MED_SPEED)
