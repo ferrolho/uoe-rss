@@ -10,10 +10,10 @@ class Gripper:
 	def __del__(self):
 		self.IO.servoDisengage()
 
-	def close(self):
-		self.opened = False
 	def open(self):
 		self.opened = True
+	def close(self):
+		self.opened = False
 	def update(self):
 		self.IO.servoSet(SERVO_POS_OPEN if self.isOpened() else SERVO_POS_CLOSE)
 

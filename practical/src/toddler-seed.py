@@ -93,7 +93,6 @@ class Toddler:
 				self.EvadeLeft()
 			else:
 				if self.ObstacleToTheRight():
-					self.gripper.open()
 					self.TurnLeft()
 
 					if self.turnAux == 2:
@@ -127,7 +126,7 @@ class Toddler:
 	def ObstacleToTheLeft(self):
 		return self.sensors[1] > IR_THRESHOLD
 	def GripperSensorTriggered(self):
-		return self.sensors[3] < 20
+		return self.sensors[3] < 40
 
 	def STOP(self):
 		self.IO.setMotors(0, 0)
