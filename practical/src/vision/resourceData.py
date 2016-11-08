@@ -1,5 +1,5 @@
 import cv2
-from featureMatching import sift
+from vision.featureMatching import sift
 
 class ResourceData:
     def __init__(self, name):

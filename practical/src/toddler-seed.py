@@ -6,12 +6,12 @@ import numpy as np
 import time
 
 from baseDetector import *
-from featureMatching import *
 from gripper import Gripper
 from random import randint
-from resourceData import *
-from sceneData import *
 from settings import *
+from vision.featureMatching import *
+from vision.resourceData import *
+from vision.sceneData import *
 from whiskers import *
 
 
