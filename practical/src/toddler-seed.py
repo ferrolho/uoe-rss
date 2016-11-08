@@ -3,7 +3,9 @@ __TODDLER_VERSION__ = "1.0.0"
 
 import cv2
 import numpy as np
+import time
 
+from baseDetector import *
 from featureMatching import *
 from gripper import Gripper
 from random import randint
@@ -25,7 +27,8 @@ class Toddler:
 		# Store the instance of IO for later
 		self.IO = IO
 
-		self.gripper  = Gripper(self.IO)
+		self.baseDetector = BaseDetector(self.IO)
+		self.gripper  =  Gripper(self.IO)
 		self.whiskers = Whiskers(self.IO)
 
 		# Add more initialisation code here
@@ -69,20 +72,23 @@ class Toddler:
 				self.lastInputs = self.inputs
 
 			self.sensors = self.IO.getSensors()
-			#print self.sensors
+			print self.sensors
 
 			if self.GripperSensorTriggered():
 				self.gripper.close()
 			else:
 				self.gripper.open()
 
+			if self.onBase():
+				print '- ON BASE -'
+
 			#print
 			#print self.lastInputs
 
-			if self.whiskers.left.triggered() or self.whiskers.right.triggered():
-				print self.whiskers
-			else:
-				print self.inputs
+			#if self.whiskers.left.triggered() or self.whiskers.right.triggered():
+			#	print self.whiskers
+			#else:
+			#	print self.inputs
 
 			if self.lastInputs[7] != self.inputs[7]:
 				self.hallCounter += 1
@@ -111,6 +117,9 @@ class Toddler:
 
 	def update(self):
 		self.gripper.update()
+
+	def onBase(self):
+		return self.baseDetector.left.triggered() and self.baseDetector.right.triggered()
 
 	def ObstacleToTheRight(self):
 		return self.sensors[0] > IR_THRESHOLD
