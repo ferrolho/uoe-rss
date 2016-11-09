@@ -5,9 +5,9 @@ SENSOR_SLOT = 7
 
 class HallCounter:
 	def __init__(self, IO):
-		self.IO = IO
+		self.__IO = IO
 		self.__counter = 0
-		self.lastState = self.IO.getInputs()[SENSOR_SLOT]
+		self.__lastState = self.__IO.getInputs()[SENSOR_SLOT]
 
 		t = threading.Thread(target = self.update)
 		t.setDaemon(True)
@@ -15,11 +15,11 @@ class HallCounter:
 
 	def update(self):
 		while True:
-			sensorState = self.IO.getInputs()[SENSOR_SLOT]
+			sensorState = self.__IO.getInputs()[SENSOR_SLOT]
 
-			if sensorState != self.lastState:
+			if sensorState != self.__lastState:
 				self.__counter += 1
-				self.lastState = sensorState
+				self.__lastState = sensorState
 				print 'Travelled distance: %d' % self.__counter
 
 	def getCount(self):
