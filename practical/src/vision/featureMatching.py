@@ -14,7 +14,7 @@ flann = cv2.FlannBasedMatcher(index_params, search_params)
 # Initiate SIFT detector
 sift = cv2.xfeatures2d.SIFT_create()
 
-def FeatureMatching(self, resourceData, sceneData):
+def applyFeatureMatching(self, resourceData, sceneData):
 	matches = flann.knnMatch(resourceData.descriptors, sceneData.descriptors, k = 2)
 
 	# store all the good matches as per Lowe's ratio test.
@@ -57,6 +57,5 @@ def FeatureMatching(self, resourceData, sceneData):
 
 	# Display the image
 	self.IO.imshow(resourceData.name, imgMatches)
-#
 
 ### eof ###

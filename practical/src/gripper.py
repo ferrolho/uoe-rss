@@ -1,5 +1,13 @@
+# When the gripper sensor measures light below this
+# threshold, it will assume there is a cube on the gripper dock.
+SENSOR_THRESHOLD = 40
+
+# Servo positions to open/close the gripper.
 SERVO_POS_OPEN  = 130
 SERVO_POS_CLOSE = 70
+
+# The slot the sensor is connected to.
+SENSOR_SLOT = 3
 
 class Gripper:
 	def __init__(self, IO):
@@ -21,3 +29,8 @@ class Gripper:
 		return self.opened
 	def isClosed(self):
 		return not self.opened
+
+	def sensesCube(self):
+		return self.IO.getSensors()[SENSOR_SLOT] < SENSOR_THRESHOLD
+	def isTransportingCube(self):
+		return self.sensesCube() and self.isClosed()
