@@ -1,16 +1,13 @@
-#!/usr/bin/env python
-#__TODDLER_VERSION__ = "1.0.0"
-
 import numpy as np
 import time
 
 from vision.visionUtils import *
-
-from baseDetector import *
-from gripper import Gripper
-from random import randint
 from settings import *
-from whiskers import *
+
+from baseDetector import BaseDetector
+from gripper import Gripper
+from hallCounter import HallCounter
+from whiskers import Whiskers
 
 # Main Toddler class
 class Toddler:
@@ -21,11 +18,9 @@ class Toddler:
 
 		self.baseDetector = BaseDetector(self.IO)
 		self.gripper = Gripper(self.IO)
+		self.hallCounter = HallCounter(self.IO)
 		self.whiskers = Whiskers(self.IO)
 		self.visionUtils = VisionUtils(self.IO)
-
-		# Add more initialisation code here
-		self.hallCounter = 0
 
 		self.resetTurnSleep()
 
@@ -36,7 +31,7 @@ class Toddler:
 		self.turnSleep = 0
 	def incAndSleep(self):
 		if self.initHallCount == 0:
-			self.initHallCount = self.hallCounter
+			self.initHallCount = self.hallCounter.getCount()
 		self.turnSleep += 0.2
 		time.sleep(self.turnSleep)
 		print 'Incremented turnSleep to ', self.turnSleep
@@ -45,13 +40,6 @@ class Toddler:
 	# It has its dedicated thread so you can keep blocking it.
 	def Control(self, OK):
 		while OK():
-			if hasattr(self, 'inputs'):
-				self.lastInputs = self.inputs
-				self.inputs = list(self.IO.getInputs())
-			else:
-				self.inputs = list(self.IO.getInputs())
-				self.lastInputs = self.inputs
-
 			self.sensors = self.IO.getSensors()
 			#print self.sensors
 
@@ -72,10 +60,6 @@ class Toddler:
 			#else:
 			#	print self.inputs
 
-			if self.lastInputs[7] != self.inputs[7]:
-				self.hallCounter += 1
-			#print 'Travelled distance: %d' % self.hallCounter
-
 			if self.ObstacleToTheRight():
 				self.TurnLeft()
 
@@ -90,7 +74,7 @@ class Toddler:
 				self.turnAux = 2
 			else:
 				if self.turnSleep > 0:
-					if self.hallCounter - self.initHallCount > 2:
+					if self.hallCounter.getCount() - self.initHallCount > 2:
 						self.resetTurnSleep()
 
 				self.MoveForward()
@@ -139,7 +123,7 @@ class Toddler:
 
 				# Read the image
 				cameraImage = self.IO.cameraRead()
-				self.IO.imshow('Camera', cameraImage)
+				#self.IO.imshow('Camera', cameraImage)
 
 				# Process camera input
 				self.visionUtils.process(cameraImage)
