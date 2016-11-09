@@ -1,5 +1,8 @@
 import threading
 
+# Hall Effect Counter info:
+#	1 hall unit = 4 cm
+
 # The slot the sensor is connected to.
 SENSOR_SLOT = 7
 

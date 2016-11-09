@@ -7,6 +7,7 @@ from settings import *
 from baseDetector import BaseDetector
 from gripper import Gripper
 from hallCounter import HallCounter
+from motors import Motors
 from whiskers import Whiskers
 
 # Main Toddler class
@@ -16,13 +17,17 @@ class Toddler:
 		# Store the instance of IO for later
 		self.IO = IO
 
-		self.baseDetector = BaseDetector(self.IO)
-		self.gripper = Gripper(self.IO)
-		self.hallCounter = HallCounter(self.IO)
-		self.whiskers = Whiskers(self.IO)
-		self.visionUtils = VisionUtils(self.IO)
+		if (USE_CONTROL):
+			self.baseDetector = BaseDetector(self.IO)
+			self.gripper = Gripper(self.IO)
+			self.hallCounter = HallCounter(self.IO)
+			self.motors = Motors(self.IO)
+			self.whiskers = Whiskers(self.IO)
 
-		self.resetTurnSleep()
+			self.resetTurnSleep()
+
+		if (USE_VISION):
+			self.visionUtils = VisionUtils(self.IO)
 
 	def resetTurnSleep(self):
 		# 0 - none, 1 - just turned left, 2 - just turned right
@@ -39,47 +44,52 @@ class Toddler:
 	# This is a callback that will be called repeatedly.
 	# It has its dedicated thread so you can keep blocking it.
 	def Control(self, OK):
-		while OK():
-			self.sensors = self.IO.getSensors()
-			#print self.sensors
+		if (USE_CONTROL):
+			while OK():
+				self.sensors = self.IO.getSensors()
+				#print self.sensors
+				#print self.IO.getInputs()
 
-			if self.gripper.sensesCube():
-				self.gripper.close()
-			else:
-				self.gripper.open()
+				self.routine2()
 
-			if self.onBase():
-				#print '- ON BASE -'
-				self.gripper.open()
+				self.update()
 
-			#print
-			#print self.lastInputs
+	def routine2(self):
+		if self.hallCounter.getCount() < 80:
+			self.motors.moveForward()
+		else:
+			self.motors.stop()
 
-			#if self.whiskers.left.triggered() or self.whiskers.right.triggered():
-			#	print self.whiskers
-			#else:
-			#	print self.inputs
+	def routine1(self):
+		print 'Routine 1 running ...'
 
-			if self.ObstacleToTheRight():
-				self.TurnLeft()
+		if self.gripper.sensesCube():
+			self.gripper.close()
+		else:
+			self.gripper.open()
 
-				if self.turnAux == 2:
-					self.incAndSleep()
-				self.turnAux = 1
-			elif self.ObstacleToTheLeft():
-				self.TurnRight()
+		if self.onBase():
+			#print '- ON BASE -'
+			self.gripper.open()
 
-				if self.turnAux == 1:
-					self.incAndSleep()
-				self.turnAux = 2
-			else:
-				if self.turnSleep > 0:
-					if self.hallCounter.getCount() - self.initHallCount > 2:
-						self.resetTurnSleep()
+		if self.ObstacleToTheRight():
+			self.motors.turnLeft()
 
-				self.MoveForward()
+			if self.turnAux == 2:
+				self.incAndSleep()
+			self.turnAux = 1
+		elif self.ObstacleToTheLeft():
+			self.motors.turnRight()
 
-			self.update()
+			if self.turnAux == 1:
+				self.incAndSleep()
+			self.turnAux = 2
+		else:
+			if self.turnSleep > 0:
+				if self.hallCounter.getCount() - self.initHallCount > 2:
+					self.resetTurnSleep()
+
+			self.MoveForward()
 
 	def update(self):
 		self.gripper.update()
@@ -91,24 +101,6 @@ class Toddler:
 		return self.sensors[0] > IR_THRESHOLD
 	def ObstacleToTheLeft(self):
 		return self.sensors[1] > IR_THRESHOLD
-
-	def STOP(self):
-		self.IO.setMotors(0, 0)
-
-	def MoveBackwards(self):
-		self.IO.setMotors(-MOTOR_MAX_SPEED, -MOTOR_MAX_SPEED)
-	def MoveForward(self):
-		self.IO.setMotors(MOTOR_MAX_SPEED, MOTOR_MAX_SPEED)
-
-	def EvadeLeft(self):
-		self.IO.setMotors(-MOTOR_MAX_SPEED, -MOTOR_LOW_SPEED)
-	def EvadeRight(self):
-		self.IO.setMotors(-MOTOR_LOW_SPEED, -MOTOR_MAX_SPEED)
-
-	def TurnLeft(self):
-		self.IO.setMotors(MOTOR_MED_SPEED, -MOTOR_MED_SPEED)
-	def TurnRight(self):
-		self.IO.setMotors(-MOTOR_MED_SPEED, MOTOR_MED_SPEED)
 
 	# This is a callback that will be called repeatedly.
 	# It has its dedicated thread so you can keep blocking it.
