@@ -9,10 +9,12 @@ from settings import *
 class VisionUtils:
 	def __init__(self, IO):
 		self.IO = IO
+		self.framesProcessed = 0
 		self.resourcesData = [ResourceData(name) for name in RESOURCE_NAMES]
 		self.resetFlags()
 
 	def resetFlags(self):
+		self.centroid_x = None
 		self.objOfInterestFound = False
 		self.visibleResources = [0, 0, 0, 0]
 
@@ -23,6 +25,8 @@ class VisionUtils:
 
 		if not self.resourceIsVisible():
 			self.scanForCubeFarAway(rawCameraImg)
+
+		self.framesProcessed += 1
 
 	def scanForCartoons(self, rawCameraImg):
 		height, width, channels = rawCameraImg.shape
@@ -38,7 +42,9 @@ class VisionUtils:
 
 		# look for resources in the scene
 		for resourceData in self.resourcesData:
-			applyFeatureMatching(self, resourceData, sceneData)
+			self.centroid_x = applyFeatureMatching(self, resourceData, sceneData)
+			if self.centroid_x:
+				break
 
 	def resourceIsVisible(self):
 		for visible in self.visibleResources:
@@ -77,6 +83,6 @@ class VisionUtils:
 			self.objOfInterestFound = True
 
 			cv2.line(croppedImg, (cx, cy), (cx, cy), (0, 0, 255), 20)
-			#print cx, cy
+			self.centroid_x = cx
 
 		self.IO.imshow('raw', croppedImg)

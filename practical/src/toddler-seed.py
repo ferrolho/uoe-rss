@@ -50,13 +50,48 @@ class Toddler:
 				#print self.sensors
 				#print self.IO.getInputs()
 
-				self.routine2()
+				self.routine3()
 
 				self.update()
 
+	def routine3(self):
+		if self.gripper.sensesCube():
+			self.gripper.close()
+			self.motors.stop()
+
+		if not self.gripper.isTransportingCube():
+			if self.visionUtils.centroid_x:
+				print 'Testing - %d' % self.visionUtils.centroid_x
+
+				if 100 <= self.visionUtils.centroid_x <= 170:
+					print 'DONE'
+					self.motors.moveForward()
+				else:
+					if self.visionUtils.centroid_x <= 100:
+						print 'turnLeft'
+						self.motors.turnLeft()
+					elif self.visionUtils.centroid_x >= 170:
+						print 'turnRight'
+						self.motors.turnRight()
+
+					time.sleep(0.1)
+					self.motors.stop()
+
+					lastFrameID = self.visionUtils.framesProcessed
+					print 'Waiting for next frame'
+					while (lastFrameID == self.visionUtils.framesProcessed):
+						time.sleep(0.1)
+					print 'New frame!'
+			else:
+				self.motors.stop()
+
 	def routine2(self):
-		if self.hallCounter.getCount() < 80:
+		if self.hallCounter.getCount() < 40:
 			self.motors.moveForward()
+		elif self.hallCounter.getCount() < 46:
+			self.motors.turnRight()
+		elif self.hallCounter.getCount() < 52:
+			self.motors.turnLeft()
 		else:
 			self.motors.stop()
 
@@ -89,7 +124,7 @@ class Toddler:
 				if self.hallCounter.getCount() - self.initHallCount > 2:
 					self.resetTurnSleep()
 
-			self.MoveForward()
+			self.motors.moveForward()
 
 	def update(self):
 		self.gripper.update()

@@ -29,6 +29,6 @@ class Motors:
 		self.__setSpeeds(-MOTOR_LOW_SPEED, -MOTOR_MAX_SPEED)
 
 	def turnLeft(self):
-		self.__setSpeeds( MOTOR_MED_SPEED, -MOTOR_MED_SPEED)
+		self.__setSpeeds(0, MOTOR_MED_SPEED)
 	def turnRight(self):
-		self.__setSpeeds(-MOTOR_MED_SPEED,  MOTOR_MED_SPEED)
+		self.__setSpeeds(MOTOR_MED_SPEED, 0)
