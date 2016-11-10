@@ -83,6 +83,8 @@ class VisionUtils:
 			self.objOfInterestFound = True
 
 			cv2.line(croppedImg, (cx, cy), (cx, cy), (0, 0, 255), 20)
-			self.centroid_x = cx
+
+			if not self.centroid_x:
+				self.centroid_x = cx
 
 		self.IO.imshow('raw', croppedImg)
