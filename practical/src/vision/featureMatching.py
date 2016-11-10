@@ -14,7 +14,7 @@ flann = cv2.FlannBasedMatcher(index_params, search_params)
 # Initiate SIFT detector
 sift = cv2.xfeatures2d.SIFT_create()
 
-def FeatureMatching(self, resourceData, sceneData):
+def applyFeatureMatching(self, resourceData, sceneData):
 	matches = flann.knnMatch(resourceData.descriptors, sceneData.descriptors, k = 2)
 
 	# store all the good matches as per Lowe's ratio test.
@@ -23,13 +23,16 @@ def FeatureMatching(self, resourceData, sceneData):
 		if m.distance < 0.7 * n.distance:
 			good.append(m)
 
+	centroid_x = None
 	matchesMask = None
 
 	if len(good) > MIN_MATCH_COUNT:
 		src_pts = np.float32([ resourceData.keypoints[m.queryIdx].pt for m in good ]).reshape(-1, 1, 2)
 		dst_pts = np.float32([ sceneData.keypoints[m.trainIdx].pt for m in good ]).reshape(-1, 1, 2)
 
-		M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
+		centroid_x = (np.sum(np.sum(dst_pts, axis=1), axis=0) / len(dst_pts))[0]
+
+		M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
 
 		if mask is not None:
 			matchesMask = mask.ravel().tolist()
@@ -55,8 +58,12 @@ def FeatureMatching(self, resourceData, sceneData):
 								 sceneData.image, sceneData.keypoints,
 								 good, None, **draw_params)
 
+	if centroid_x:
+		cv2.line(imgMatches, (centroid_x, 50), (centroid_x, 50), (0, 0, 255), 20)
+
 	# Display the image
 	self.IO.imshow(resourceData.name, imgMatches)
-#
+
+	return centroid_x
 
 ### eof ###

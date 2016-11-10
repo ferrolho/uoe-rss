@@ -1,4 +1,4 @@
-from featureMatching import *
+from vision.featureMatching import sift
 
 class SceneData:
     def __init__(self, cameraImage):
