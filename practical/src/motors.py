@@ -6,6 +6,7 @@ MOTOR_FILTER_RIGHT = 1.0
 MOTOR_MAX_SPEED = 90
 MOTOR_MED_SPEED = MOTOR_MAX_SPEED - 10
 MOTOR_LOW_SPEED = MOTOR_MAX_SPEED - 20
+MOTOR_SCAN_SPEED = MOTOR_MAX_SPEED - 50
 
 class Motors:
 	def __init__(self, IO):
@@ -32,3 +33,6 @@ class Motors:
 		self.__setSpeeds(0, MOTOR_MED_SPEED)
 	def turnRight(self):
 		self.__setSpeeds(MOTOR_MED_SPEED, 0)
+
+	def turnRightOnSpot(self):
+		self.__setSpeeds(MOTOR_SCAN_SPEED, -MOTOR_SCAN_SPEED)

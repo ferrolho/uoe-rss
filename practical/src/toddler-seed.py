@@ -17,6 +17,11 @@ class Toddler:
 		# Store the instance of IO for later
 		self.IO = IO
 
+		# 0 - looking for wall
+		# 1 - turning to opening
+		self.state = 0
+		self.minRight = 0
+
 		if (USE_CONTROL):
 			self.baseDetector = BaseDetector(self.IO)
 			self.gripper = Gripper(self.IO)
@@ -54,6 +59,45 @@ class Toddler:
 
 				self.update()
 
+	def facingWall(self, left, right):
+		WALL_DIST_THRESHOLD = 180
+		return left > WALL_DIST_THRESHOLD and right > WALL_DIST_THRESHOLD
+
+	def routine5(self):
+		right, left = self.sensors[0], self.sensors[1]
+
+		if self.state == 0:
+			print '{} x {}'.format(left, right)
+			self.motors.turnRightOnSpot()
+
+			if self.facingWall(left, right):
+				print '- FACING WALL -'
+				self.state = 1
+				self.minRight = right
+		elif self.state == 1:
+			print '{} x {}'.format(left, right)
+
+			if right <= self.minRight:
+				self.minRight = right
+			elif left < 200:
+				print '- FOUND OPENING -'
+				self.motors.stop()
+				time.sleep(0.1)
+
+				self.state = 2
+				self.hallCounter.setTimer(60)
+		elif self.state == 2:
+			self.motors.moveForward()
+			if self.hallCounter.timerIsDone():
+				self.motors.stop()
+				self.state = 3
+				self.hallCounter.setTimer(12)
+		elif self.state == 3:
+			self.motors.turnLeft()
+			if self.hallCounter.timerIsDone():
+				self.motors.stop()
+				self.state = 4
+
 	def routine3(self):
 		if self.gripper.sensesCube():
 			self.gripper.close()
@@ -63,6 +107,7 @@ class Toddler:
 			if self.visionUtils.centroid_x:
 				print 'Testing - %d' % self.visionUtils.centroid_x
 
+				# use dynamic thresholds for long-range scan
 				if 100 <= self.visionUtils.centroid_x <= 170:
 					print 'DONE'
 					self.motors.moveForward()
@@ -143,6 +188,9 @@ class Toddler:
 		if (USE_VISION):
 			# Set the camera resolution
 			self.IO.cameraSetResolution('medium')
+
+			#self.IO._cap.set(cv2.CAP_PROP_FPS, 15)
+			#print self.IO._cap.get(cv2.CAP_PROP_FPS)
 
 			while OK():
 				# Grab the image
