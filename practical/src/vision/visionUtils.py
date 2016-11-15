@@ -15,6 +15,12 @@ class VisionUtils:
 
 	def resetFlags(self):
 		self.centroid_x = None
+
+		# 0 - on the left
+		# 1 - aligned (go forward!)
+		# 2 - on the right
+		self.cubeRelativePos = None
+
 		self.objOfInterestFound = False
 		self.visibleResources = [0, 0, 0, 0]
 
@@ -43,7 +49,17 @@ class VisionUtils:
 		# look for resources in the scene
 		for resourceData in self.resourcesData:
 			self.centroid_x = applyFeatureMatching(self, resourceData, sceneData)
+
 			if self.centroid_x:
+				print 'Cartoon at', self.centroid_x
+
+				if self.centroid_x <= 100:
+					self.cubeRelativePos = 0
+				elif 100 <= self.centroid_x <= 170:
+					self.cubeRelativePos = 1
+				elif self.centroid_x >= 170:
+					self.cubeRelativePos = 2
+
 				break
 
 	def resourceIsVisible(self):
@@ -86,5 +102,16 @@ class VisionUtils:
 
 			if not self.centroid_x:
 				self.centroid_x = cx
+
+				print 'Cube far away at x-', self.centroid_x
+
+				if self.centroid_x <= 220:
+					self.cubeRelativePos = 0
+				elif 220 <= self.centroid_x <= 420:
+					self.cubeRelativePos = 1
+				elif self.centroid_x >= 420:
+					self.cubeRelativePos = 2
+
+				print 'Cube far away at rel_pos-', self.cubeRelativePos
 
 		self.IO.imshow('raw', croppedImg)

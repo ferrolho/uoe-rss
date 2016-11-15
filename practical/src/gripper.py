@@ -25,6 +25,10 @@ class Gripper:
 	def update(self):
 		self.IO.servoSet(SERVO_POS_OPEN if self.isOpened() else SERVO_POS_CLOSE)
 
+	def openNow(self):
+		self.open()
+		self.update()
+
 	def isOpened(self):
 		return self.opened
 	def isClosed(self):

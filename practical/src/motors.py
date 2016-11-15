@@ -20,7 +20,7 @@ class Motors:
 		self.__setSpeeds(0, 0)
 
 	def moveBackwards(self):
-		self.__setSpeeds(-MOTOR_MAX_SPEED, -MOTOR_MAX_SPEED)
+		self.__setSpeeds(-MOTOR_LOW_SPEED, -MOTOR_LOW_SPEED)
 	def moveForward(self):
 		self.__setSpeeds( MOTOR_MAX_SPEED,  MOTOR_MAX_SPEED)
 
@@ -34,5 +34,7 @@ class Motors:
 	def turnRight(self):
 		self.__setSpeeds(MOTOR_MED_SPEED, 0)
 
+	def turnLeftOnSpot(self):
+		self.__setSpeeds(-MOTOR_SCAN_SPEED,  MOTOR_SCAN_SPEED)
 	def turnRightOnSpot(self):
-		self.__setSpeeds(MOTOR_SCAN_SPEED, -MOTOR_SCAN_SPEED)
+		self.__setSpeeds( MOTOR_SCAN_SPEED, -MOTOR_SCAN_SPEED)

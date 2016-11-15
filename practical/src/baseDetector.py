@@ -2,7 +2,7 @@ import threading
 
 # When the sensors measure light below this
 # threshold, they will assume it is a black base.
-SENSOR_THRESHOLD = 10
+SENSOR_THRESHOLD = 15
 
 # Change the following according to which
 # slot each sensor is connected to.
@@ -32,4 +32,4 @@ class Sensor:
 			self.lightSample = BaseDetector.IO.getSensors()[self.sensorSlot]
 
 	def triggered(self):
-		return self.lightSample < SENSOR_THRESHOLD
+		return self.lightSample <= SENSOR_THRESHOLD

@@ -30,7 +30,9 @@ class HallCounter:
 				if self.__timer > 0:
 					self.__timer -= 1
 
-	def setTimer(self, cm):
+	def setTimer(self, units):
+		self.__timer = units
+	def setTimerCm(self, cm):
 		self.__timer = cm / 4
 	def timerIsDone(self):
 		return self.__timer == 0
