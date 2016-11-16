@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-from utils.scan360 import do360scanToRoom
+from utils.scan360 import scan360toRoom
 from vision.visionUtils import *
 from settings import *
 
@@ -18,8 +18,11 @@ class Toddler:
 		# Store the instance of IO for later
 		self.IO = IO
 
-		# 0 - looking for wall
-		# 1 - turning to opening
+		# State machine steps:
+		#  0 - scanning 360 for a room
+		#  1 - moving into that room
+		#  2 - search for and fetch the cube
+		#  3 - deliver cube to the respective base
 		self.state = 0
 		self.cubeHasBeenSeen = False
 
@@ -57,7 +60,8 @@ class Toddler:
 				#print self.IO.getInputs()
 
 				#self.routine5()
-				do360scanToRoom(self, 'c')
+				scan360toRoom(self, 'c')
+				print 'TESTASDASDASDASD', self.scan360_done
 
 				self.update()
 
