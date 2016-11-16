@@ -142,6 +142,29 @@ class Toddler:
 
 					self.state += 1
 					self.hallCounter.setTimerCm(30)
+			elif DEST_ROOM == 3:
+				if not hasattr(self, 'openingsCount'):
+					self.openingsCount = 0
+
+				if right <= self.minRight:
+					self.minRight = right
+				elif self.openingsCount == 0 and left < 200:
+					print '- FOUND OPENING TO ROOM B -'
+					self.openingsCount += 1
+				elif self.openingsCount == 1 and left > 200:
+					print '- FOUND OPENING TO ROOM A -'
+					self.minLeft = False
+					self.openingsCount += 1
+				elif self.openingsCount == 2:
+					if left < 100:
+						self.minLeft = True
+					elif self.minLeft and left > 150:
+						print '- FOUND OPENING TO ROOM C -'
+						self.motors.stop()
+						time.sleep(0.2)
+
+						self.state += 1
+						self.hallCounter.setTimerCm(0)
 		elif self.state == 2:
 			self.motors.moveForward()
 			if self.hallCounter.timerIsDone():
@@ -162,6 +185,11 @@ class Toddler:
 				if self.hallCounter.timerIsDone():
 					self.motors.stop()
 					self.state += 1
+			elif DEST_ROOM == 3:
+				self.motors.turnRight()
+				time.sleep(0.2)
+				self.motors.stop()
+				self.state += 1
 		elif self.state == 4:
 			self.routine3()
 		elif self.state == 5:
