@@ -1,3 +1,4 @@
+import time
 
 def __facingWall(left, right):
 	WALL_DIST_THRESHOLD = 180
@@ -8,7 +9,7 @@ def scan360toRoom(self, room):
 	print '{} x {}'.format(left, right)
 
 	if not hasattr(self, '__scan360_started'):
-		print '- 360 scan started -'
+		print '- Scanning 360 to room -'
 		self.__scan360_started     = True
 		self.__scan360_state       = 0
 		self.__scan360_roomCounter = 0
@@ -23,8 +24,8 @@ def scan360toRoom(self, room):
 
 		if __facingWall(left, right):
 			print '- FACING WALL -'
-			self.__scan360_state += 1
 			self.__scan360_minRight = right
+			self.__scan360_state += 1
 
 	elif self.__scan360_state == 1:
 
@@ -42,15 +43,13 @@ def scan360toRoom(self, room):
 		# correct opening is detected.
 
 		if room == 'b':
-			if left < 200:
+			if left < 180:
 				print '- FOUND OPENING TO ROOM B -'
 				self.__scan360_state += 1
 
-				#self.hallCounter.setTimerCm(40)
 		elif room == 'a' or room == 'c':
-			if self.__scan360_roomCounter == 0 and left < 200:
+			if self.__scan360_roomCounter == 0 and left < 180:
 				print '- FOUND OPENING TO ROOM B -'
-
 				self.__scan360_roomCounter += 1
 
 			elif self.__scan360_roomCounter == 1 and left > 200:
@@ -59,7 +58,6 @@ def scan360toRoom(self, room):
 				if room == 'a':
 						self.__scan360_state += 1
 
-						#self.hallCounter.setTimerCm(30)
 				elif room == 'c':
 						self.__scan360_leftFoundGapToRoomA = False
 						self.__scan360_roomCounter += 1
@@ -69,9 +67,8 @@ def scan360toRoom(self, room):
 					self.__scan360_leftFoundGapToRoomA = True
 				elif self.__scan360_leftFoundGapToRoomA and left > 150:
 					print '- FOUND OPENING TO ROOM C -'
+					time.sleep(0.2)
 					self.__scan360_state += 1
-
-					#self.hallCounter.setTimerCm(0)
 
 	elif self.__scan360_state == 3:
 

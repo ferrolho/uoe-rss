@@ -1,6 +1,7 @@
 import numpy as np
 import time
 
+from utils.moveFromHomeToRoom import moveFromHomeToRoom
 from utils.scan360 import scan360toRoom
 from vision.visionUtils import *
 from settings import *
@@ -60,10 +61,39 @@ class Toddler:
 				#print self.IO.getInputs()
 
 				#self.routine5()
-				scan360toRoom(self, 'c')
-				print 'TESTASDASDASDASD', self.scan360_done
+				self.updateFSM()
 
 				self.update()
+
+	def updateFSM(self):
+
+		if self.state == 0:
+
+			#  0 - scanning 360 for a room
+
+			scan360toRoom(self, DEST_ROOM)
+
+			if self.scan360_done:
+				self.state += 1
+
+		elif self.state == 1:
+
+			#  1 - moving into that room
+
+			moveFromHomeToRoom(self, DEST_ROOM)
+
+			if self.moveFromHomeToRoom_done:
+				self.state += 1
+
+		elif self.state == 2:
+
+			#  2 - search for and fetch the cube
+			pass
+
+		elif self.state == 3:
+
+			#  3 - deliver cube to the respective base
+			pass
 
 	def onBase(self):
 		return self.baseDetector.left.triggered() and self.baseDetector.right.triggered()
@@ -104,32 +134,7 @@ class Toddler:
 				self.motors.moveForward()
 
 	def routine5(self):
-		if self.state == 2:
-			self.motors.moveForward()
-			if self.hallCounter.timerIsDone():
-				self.motors.stop()
-				self.state += 1
-				if DEST_ROOM == 1:
-					self.hallCounter.setTimer(4)
-				elif DEST_ROOM == 2:
-					self.hallCounter.setTimer(3)
-		elif self.state == 3:
-			if DEST_ROOM == 1:
-				self.motors.turnLeft()
-				if self.hallCounter.timerIsDone():
-					self.motors.stop()
-					self.state += 1
-			elif DEST_ROOM == 2:
-				self.motors.turnRight()
-				if self.hallCounter.timerIsDone():
-					self.motors.stop()
-					self.state += 1
-			elif DEST_ROOM == 3:
-				self.motors.turnRight()
-				time.sleep(0.2)
-				self.motors.stop()
-				self.state += 1
-		elif self.state == 4:
+		if self.state == 4:
 			self.routine3()
 		elif self.state == 5:
 			self.routine6()
