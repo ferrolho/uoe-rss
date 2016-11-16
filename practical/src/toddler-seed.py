@@ -53,16 +53,12 @@ class Toddler:
 		if (USE_CONTROL):
 			while OK():
 				self.sensors = self.IO.getSensors()
-				print self.sensors
+				#print self.sensors
 				#print self.IO.getInputs()
 
 				self.routine5()
 
 				self.update()
-
-	def facingWall(self, left, right):
-		WALL_DIST_THRESHOLD = 180
-		return left > WALL_DIST_THRESHOLD and right > WALL_DIST_THRESHOLD
 
 	def onBase(self):
 		return self.baseDetector.left.triggered() and self.baseDetector.right.triggered()
@@ -102,6 +98,10 @@ class Toddler:
 			else:
 				self.motors.moveForward()
 
+	def facingWall(self, left, right):
+		WALL_DIST_THRESHOLD = 180
+		return left > WALL_DIST_THRESHOLD and right > WALL_DIST_THRESHOLD
+
 	def routine5(self):
 		right, left = self.sensors[0], self.sensors[1]
 
@@ -116,26 +116,52 @@ class Toddler:
 		elif self.state == 1:
 			print '{} x {}'.format(left, right)
 
-			if right <= self.minRight:
-				self.minRight = right
-			elif left < 200:
-				print '- FOUND OPENING -'
-				self.motors.stop()
-				time.sleep(0.2)
+			if DEST_ROOM == 1:
+				if right <= self.minRight:
+					self.minRight = right
+				elif left < 200:
+					print '- FOUND OPENING TO ROOM B -'
+					self.motors.stop()
+					time.sleep(0.2)
 
-				self.state += 1
-				self.hallCounter.setTimerCm(40)
+					self.state += 1
+					self.hallCounter.setTimerCm(40)
+			elif DEST_ROOM == 2:
+				if not hasattr(self, 'openingsCount'):
+					self.openingsCount = 0
+
+				if right <= self.minRight:
+					self.minRight = right
+				elif self.openingsCount == 0 and left < 200:
+					print '- FOUND OPENING TO ROOM B -'
+					self.openingsCount += 1
+				elif self.openingsCount == 1 and left > 200:
+					print '- FOUND OPENING TO ROOM A -'
+					self.motors.stop()
+					time.sleep(0.2)
+
+					self.state += 1
+					self.hallCounter.setTimerCm(30)
 		elif self.state == 2:
 			self.motors.moveForward()
 			if self.hallCounter.timerIsDone():
 				self.motors.stop()
 				self.state += 1
-				self.hallCounter.setTimer(4)
+				if DEST_ROOM == 1:
+					self.hallCounter.setTimer(4)
+				elif DEST_ROOM == 2:
+					self.hallCounter.setTimer(3)
 		elif self.state == 3:
-			self.motors.turnLeft()
-			if self.hallCounter.timerIsDone():
-				self.motors.stop()
-				self.state += 1
+			if DEST_ROOM == 1:
+				self.motors.turnLeft()
+				if self.hallCounter.timerIsDone():
+					self.motors.stop()
+					self.state += 1
+			elif DEST_ROOM == 2:
+				self.motors.turnRight()
+				if self.hallCounter.timerIsDone():
+					self.motors.stop()
+					self.state += 1
 		elif self.state == 4:
 			self.routine3()
 		elif self.state == 5:
@@ -170,17 +196,22 @@ class Toddler:
 					time.sleep(0.1)
 
 				self.motors.stop()
-
-				lastFrameID = self.visionUtils.framesProcessed
-				print 'Waiting for next frame'
-				while (lastFrameID == self.visionUtils.framesProcessed):
-					time.sleep(0.1)
-				print 'New frame!'
+				self.waitForNewFrame()
 			else:
 				if self.cubeHasBeenSeen:
 					self.motors.moveForward()
 				else:
+					self.motors.turnLeft()
+					time.sleep(0.1)
 					self.motors.stop()
+					self.waitForNewFrame()
+
+	def waitForNewFrame(self):
+		lastFrameID = self.visionUtils.framesProcessed
+		print 'Waiting for next frame'
+		while (lastFrameID == self.visionUtils.framesProcessed):
+			time.sleep(0.1)
+		print 'New frame!'
 
 	def routine2(self):
 		if self.hallCounter.getCount() < 40:
