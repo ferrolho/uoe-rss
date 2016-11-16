@@ -4,12 +4,9 @@ def moveFromHomeToRoom(self, room):
 
 	if not hasattr(self, '__moveFromHomeToRoom_started'):
 		print '- Moving from home to room -'
-		self.__moveFromHomeToRoom_started     = True
-		self.__moveFromHomeToRoom_state       = 0
-		self.moveFromHomeToRoom_done          = False
-
-	print self.__moveFromHomeToRoom_state
-	print self.hallCounter.timerIsDone()
+		self.__moveFromHomeToRoom_started = True
+		self.__moveFromHomeToRoom_state   = 0
+		self.moveFromHomeToRoom_done      = False
 
 	if self.__moveFromHomeToRoom_state == 0:
 

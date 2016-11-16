@@ -1,6 +1,7 @@
 import numpy as np
 import time
 
+from utils.fetchCube import fetchCube
 from utils.moveFromHomeToRoom import moveFromHomeToRoom
 from utils.scan360 import scan360toRoom
 from vision.visionUtils import *
@@ -60,7 +61,6 @@ class Toddler:
 				#print self.sensors
 				#print self.IO.getInputs()
 
-				#self.routine5()
 				self.updateFSM()
 
 				self.update()
@@ -88,7 +88,11 @@ class Toddler:
 		elif self.state == 2:
 
 			#  2 - search for and fetch the cube
-			pass
+
+			fetchCube(self, DEST_ROOM)
+
+			if self.fetchCube_done:
+				self.state += 1
 
 		elif self.state == 3:
 
@@ -132,68 +136,6 @@ class Toddler:
 				self.state += 1
 			else:
 				self.motors.moveForward()
-
-	def routine5(self):
-		if self.state == 4:
-			self.routine3()
-		elif self.state == 5:
-			self.routine6()
-
-	def routine3(self):
-		print 'routine3()'
-
-		if self.gripper.sensesCube():
-			self.gripper.close()
-			self.motors.stop()
-			print '- GOT DA CUBE -'
-			self.state += 1
-
-		if not self.gripper.isTransportingCube():
-			if self.visionUtils.cubeRelativePos is not None:
-				print 'Testing - %d' % self.visionUtils.cubeRelativePos
-				self.cubeHasBeenSeen = True
-
-				if self.visionUtils.cubeRelativePos == 1:
-					print 'DONE'
-					self.motors.moveForward()
-					time.sleep(0.8)
-				else:
-					if self.visionUtils.cubeRelativePos == 0:
-						print 'turnLeft'
-						self.motors.turnLeft()
-					elif self.visionUtils.cubeRelativePos == 2:
-						print 'turnRight'
-						self.motors.turnRight()
-
-					time.sleep(0.1)
-
-				self.motors.stop()
-				self.waitForNewFrame()
-			else:
-				if self.cubeHasBeenSeen:
-					self.motors.moveForward()
-				else:
-					self.motors.turnLeft()
-					time.sleep(0.1)
-					self.motors.stop()
-					self.waitForNewFrame()
-
-	def waitForNewFrame(self):
-		lastFrameID = self.visionUtils.framesProcessed
-		print 'Waiting for next frame'
-		while (lastFrameID == self.visionUtils.framesProcessed):
-			time.sleep(0.1)
-		print 'New frame!'
-
-	def routine2(self):
-		if self.hallCounter.getCount() < 40:
-			self.motors.moveForward()
-		elif self.hallCounter.getCount() < 46:
-			self.motors.turnRight()
-		elif self.hallCounter.getCount() < 52:
-			self.motors.turnLeft()
-		else:
-			self.motors.stop()
 
 	def update(self):
 		self.gripper.update()

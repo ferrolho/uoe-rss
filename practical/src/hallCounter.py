@@ -1,4 +1,5 @@
 import threading
+import time
 
 # Hall Effect Counter info:
 #	1 hall unit = 4 cm
@@ -36,6 +37,11 @@ class HallCounter:
 		self.__timer = cm / 4
 	def timerIsDone(self):
 		return self.__timer == 0
+
+	def setTimerAndWait(self, units):
+		self.setTimer(units)
+		while not self.timerIsDone():
+			time.sleep(0.1)
 
 	def getCount(self):
 		return self.__counter
