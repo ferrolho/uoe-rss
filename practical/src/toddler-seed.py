@@ -32,8 +32,6 @@ class Toddler:
 
 			self.resetTurnSleep()
 
-		self.gripper.close()
-
 		if (USE_VISION):
 			self.visionUtils = VisionUtils(self.IO)
 
@@ -58,7 +56,7 @@ class Toddler:
 				print self.sensors
 				#print self.IO.getInputs()
 
-				self.routine6()
+				self.routine5()
 
 				self.update()
 
@@ -100,6 +98,7 @@ class Toddler:
 				self.motors.moveBackwards()
 				time.sleep(2)
 				self.motors.stop()
+				self.state += 1
 			else:
 				self.motors.moveForward()
 
@@ -139,6 +138,8 @@ class Toddler:
 				self.state += 1
 		elif self.state == 4:
 			self.routine3()
+		elif self.state == 5:
+			self.routine6()
 
 	def routine3(self):
 		print 'routine3()'
