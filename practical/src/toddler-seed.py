@@ -20,7 +20,6 @@ class Toddler:
 		# 0 - looking for wall
 		# 1 - turning to opening
 		self.state = 0
-		self.minRight = 0
 		self.cubeHasBeenSeen = False
 
 		if (USE_CONTROL):
@@ -56,7 +55,8 @@ class Toddler:
 				#print self.sensors
 				#print self.IO.getInputs()
 
-				self.routine5()
+				#self.routine5()
+				self.do360scanToRoom('c')
 
 				self.update()
 
@@ -102,70 +102,86 @@ class Toddler:
 		WALL_DIST_THRESHOLD = 180
 		return left > WALL_DIST_THRESHOLD and right > WALL_DIST_THRESHOLD
 
-	def routine5(self):
-		right, left = self.sensors[0], self.sensors[1]
+	def do360scanToRoom(self, room):
+		right, left = self.IO.getSensors()[0], self.IO.getSensors()[1]
+		print '{} x {}'.format(left, right)
 
-		if self.state == 0:
-			print '{} x {}'.format(left, right)
+		if not hasattr(self, '_Toddler__360scan_started'):
+			print '- 360 scan started -'
+			self.__360scan_started     = True
+			self.__360scan_done        = False
+			self.__360scan_state       = 0
+			self.__360scan_roomCounter = 0
+
+		if self.__360scan_state == 0:
+
+			# Keeps turning right until the
+			# wall keypoint is found.
+
 			self.motors.turnRightOnSpot()
 
 			if self.facingWall(left, right):
 				print '- FACING WALL -'
-				self.state += 1
-				self.minRight = right
-		elif self.state == 1:
-			print '{} x {}'.format(left, right)
+				self.__360scan_state += 1
+				self.__360scan_minRight = right
 
-			if DEST_ROOM == 1:
-				if right <= self.minRight:
-					self.minRight = right
-				elif left < 200:
+		elif self.__360scan_state == 1:
+
+			# Keeps turning right until the
+			# right sensor drops to a minimum.
+
+			if right <= self.__360scan_minRight:
+				self.__360scan_minRight = right
+			else:
+				self.__360scan_state += 1
+
+		elif self.__360scan_state == 2:
+
+			# Keeps turning right until the
+			# correct opening is detected.
+
+			if room == 'b':
+				if left < 200:
 					print '- FOUND OPENING TO ROOM B -'
-					self.motors.stop()
-					time.sleep(0.2)
+					self.__360scan_state += 1
 
-					self.state += 1
-					self.hallCounter.setTimerCm(40)
-			elif DEST_ROOM == 2:
-				if not hasattr(self, 'openingsCount'):
-					self.openingsCount = 0
-
-				if right <= self.minRight:
-					self.minRight = right
-				elif self.openingsCount == 0 and left < 200:
+					#self.hallCounter.setTimerCm(40)
+			elif room == 'a' or room == 'c':
+				if self.__360scan_roomCounter == 0 and left < 200:
 					print '- FOUND OPENING TO ROOM B -'
-					self.openingsCount += 1
-				elif self.openingsCount == 1 and left > 200:
+
+					self.__360scan_roomCounter += 1
+
+				elif self.__360scan_roomCounter == 1 and left > 200:
 					print '- FOUND OPENING TO ROOM A -'
-					self.motors.stop()
-					time.sleep(0.2)
 
-					self.state += 1
-					self.hallCounter.setTimerCm(30)
-			elif DEST_ROOM == 3:
-				if not hasattr(self, 'openingsCount'):
-					self.openingsCount = 0
+					if room == 'a':
+							self.__360scan_state += 1
 
-				if right <= self.minRight:
-					self.minRight = right
-				elif self.openingsCount == 0 and left < 200:
-					print '- FOUND OPENING TO ROOM B -'
-					self.openingsCount += 1
-				elif self.openingsCount == 1 and left > 200:
-					print '- FOUND OPENING TO ROOM A -'
-					self.minLeft = False
-					self.openingsCount += 1
-				elif self.openingsCount == 2:
+							#self.hallCounter.setTimerCm(30)
+					elif room == 'c':
+							self.__360scan_leftFoundGapToRoomA = False
+							self.__360scan_roomCounter += 1
+
+				elif self.__360scan_roomCounter == 2:
 					if left < 100:
-						self.minLeft = True
-					elif self.minLeft and left > 150:
+						self.__360scan_leftFoundGapToRoomA = True
+					elif self.__360scan_leftFoundGapToRoomA and left > 150:
 						print '- FOUND OPENING TO ROOM C -'
-						self.motors.stop()
-						time.sleep(0.2)
+						self.__360scan_state += 1
 
-						self.state += 1
-						self.hallCounter.setTimerCm(0)
-		elif self.state == 2:
+						#self.hallCounter.setTimerCm(0)
+
+		elif self.__360scan_state == 3:
+
+			# 360 scan done.
+
+			self.__360scan_done = True
+			self.motors.stop()
+			time.sleep(0.2)
+
+	def routine5(self):
+		if self.state == 2:
 			self.motors.moveForward()
 			if self.hallCounter.timerIsDone():
 				self.motors.stop()
