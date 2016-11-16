@@ -11,6 +11,7 @@ class VisionUtils:
 		self.IO = IO
 		self.framesProcessed = 0
 		self.resourcesData = [ResourceData(name) for name in RESOURCE_NAMES]
+		self.deliveryBase = None
 		self.resetFlags()
 
 	def resetFlags(self):
@@ -29,10 +30,25 @@ class VisionUtils:
 
 		self.scanForCartoons(rawCameraImg)
 
+		self.updateDeliveryBase()
+
 		if not self.resourceIsVisible():
 			self.scanForCubeFarAway(rawCameraImg)
 
 		self.framesProcessed += 1
+
+	def updateDeliveryBase(self):
+		for i, visible in enumerate(self.visibleResources):
+			if visible:
+				self.deliveryBase = RESOURCE_DEST[i]
+				print 'Delivering cube to', self.deliveryBase
+				break
+
+	def resourceIsVisible(self):
+		for visible in self.visibleResources:
+			if visible:
+				return True
+		return False
 
 	def scanForCartoons(self, rawCameraImg):
 		height, width, channels = rawCameraImg.shape
@@ -61,12 +77,6 @@ class VisionUtils:
 					self.cubeRelativePos = 2
 
 				break
-
-	def resourceIsVisible(self):
-		for visible in self.visibleResources:
-			if visible:
-				return True
-		return False
 
 	def scanForCubeFarAway(self, rawCameraImg):
 		height, width, channels = rawCameraImg.shape
