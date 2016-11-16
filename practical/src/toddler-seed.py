@@ -97,7 +97,8 @@ class Toddler:
 		elif self.state == 3:
 
 			#  3 - deliver cube to the respective base
-			pass
+
+			self.routine6()
 
 	def onBase(self):
 		return self.baseDetector.left.triggered() and self.baseDetector.right.triggered()

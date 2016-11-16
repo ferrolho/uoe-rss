@@ -32,7 +32,7 @@ def moveFromHomeToRoom(self, room):
 			self.motors.stop()
 
 			if room == 'b':
-				self.hallCounter.setTimer(4)
+				self.hallCounter.setTimer(3)
 				self.motors.turnLeft()
 
 			self.__moveFromHomeToRoom_state += 1
