@@ -21,12 +21,12 @@ def fetchCube(self, room):
 		__waitForNewFrame(self)
 
 		if self.visionUtils.cubeRelativePos is None:
-			if room == 'b':
+			if room == 'b' or room == 'c':
 				self.motors.turnLeft()
-			elif room == 'a' or room == 'c':
+			elif room == 'a':
 				self.motors.turnRight()
 
-			time.sleep(0.1)
+			time.sleep(0.3)
 			self.motors.stop()
 		else:
 			self.__fetchCube_state += 1

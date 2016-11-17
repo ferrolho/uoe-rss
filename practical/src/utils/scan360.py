@@ -14,6 +14,10 @@ def scan360toRoom(self, room):
 		self.__scan360_roomCounter = 0
 		self.scan360_done          = False
 
+	# do not do 360 scan when going from A to C
+	if room == 'c':
+		self.__scan360_state = 3
+
 	if self.__scan360_state == 0:
 
 		# Keeps turning right until the

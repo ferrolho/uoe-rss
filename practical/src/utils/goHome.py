@@ -1,6 +1,6 @@
 import time
 
-def goHome(self, room):
+def goHome(self):
 
 	if not hasattr(self, 'goHome_done'):
 		print '- Going home -'
@@ -89,7 +89,7 @@ def goHome(self, room):
 				print 'go forward 50cm (to home)'
 
 				self.motors.moveForward()
-				self.hallCounter.setTimer(18)
+				self.hallCounter.setTimer(19)
 				self.__goHome_state += 1
 
 			elif self.__goHome_state == 6:

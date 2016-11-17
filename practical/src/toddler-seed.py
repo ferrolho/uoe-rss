@@ -1,6 +1,7 @@
 import numpy as np
 import time
 
+from utils.aToHome import aToHome
 from utils.fetchCube import fetchCube
 from utils.goHome import goHome
 from utils.moveFromHomeToRoom import moveFromHomeToRoom
@@ -103,9 +104,9 @@ class Toddler:
 			#  3 - deliver cube to the respective base
 			print '3 - deliver cube to the respective base'
 
-			self.routine6()
+			self.deliverCube()
 
-			if self.routine6_done:
+			if self.deliverCube_done:
 				self.state += 1
 
 		elif self.state == 4:
@@ -113,11 +114,21 @@ class Toddler:
 			#  4 - go home
 			print '4 - go home'
 
-			goHome(self, self.roomQueue[0])
+			if self.roomQueue:
+				if self.roomQueue[0] == 'a':
+					goHome(self)
 
-			if self.goHome_done:
-				del self.goHome_done
-				self.state = 0
+					if self.goHome_done:
+						del self.goHome_done
+						self.state = 0
+				elif self.roomQueue[0] == 'c':
+					aToHome(self)
+
+					if self.aToHome_done:
+						del self.aToHome_done
+						self.state = 0
+				else:
+					pass
 
 	def onBase(self):
 		return self.baseDetector.left.triggered() and self.baseDetector.right.triggered()
@@ -127,8 +138,8 @@ class Toddler:
 	def ObstacleToTheLeft(self):
 		return self.sensors[1] > IR_THRESHOLD
 
-	def routine6(self):
-		self.routine6_done = False
+	def deliverCube(self):
+		self.deliverCube_done = False
 
 		if self.ObstacleToTheRight():
 			self.motors.turnLeftOnSpot()
@@ -157,7 +168,7 @@ class Toddler:
 				self.motors.stop()
 				# remove this room from queue
 				self.roomQueue.pop(0)
-				self.routine6_done = True
+				self.deliverCube_done = True
 			else:
 				self.motors.moveForward()
 
