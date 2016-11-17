@@ -9,12 +9,11 @@ def __waitForNewFrame(self):
 
 def fetchCube(self, room):
 
-	if not hasattr(self, '__fetchCube_started'):
+	if not hasattr(self, 'fetchCube_done'):
 		print '- Moving from home to room -'
-		self.__fetchCube_started = True
-		self.__fetchCube_state   = 0
+		self.__fetchCube_state = 0
 		self.__fetchCube_cubeHasBeenSeen = False
-		self.fetchCube_done      = False
+		self.fetchCube_done    = False
 
 	if self.__fetchCube_state == 0:
 

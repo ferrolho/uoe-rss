@@ -28,6 +28,9 @@ class Gripper:
 	def openNow(self):
 		self.open()
 		self.update()
+	def closeNow(self):
+		self.close()
+		self.update()
 
 	def isOpened(self):
 		return self.opened

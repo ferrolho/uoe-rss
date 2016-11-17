@@ -2,7 +2,7 @@ import threading
 
 # When the sensors measure light below this
 # threshold, they will assume it is a black base.
-SENSOR_THRESHOLD = 15
+SENSOR_THRESHOLD = 17
 
 # Change the following according to which
 # slot each sensor is connected to.

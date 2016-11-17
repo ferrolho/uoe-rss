@@ -2,6 +2,7 @@ import numpy as np
 import time
 
 from utils.fetchCube import fetchCube
+from utils.goHome import goHome
 from utils.moveFromHomeToRoom import moveFromHomeToRoom
 from utils.scan360 import scan360toRoom
 from vision.visionUtils import *
@@ -25,7 +26,7 @@ class Toddler:
 		#  1 - moving into that room
 		#  2 - search for and fetch the cube
 		#  3 - deliver cube to the respective base
-		self.state = 0
+		self.state = 3
 		self.cubeHasBeenSeen = False
 
 		if (USE_CONTROL):
@@ -36,6 +37,7 @@ class Toddler:
 			self.whiskers = Whiskers(self.IO)
 
 			self.resetTurnSleep()
+			self.gripper.closeNow()
 
 		if (USE_VISION):
 			self.visionUtils = VisionUtils(self.IO)
@@ -58,7 +60,7 @@ class Toddler:
 		if (USE_CONTROL):
 			while OK():
 				self.sensors = self.IO.getSensors()
-				#print self.sensors
+				print self.sensors[4], self.sensors[5], '\t', self.sensors[2]
 				#print self.IO.getInputs()
 
 				self.updateFSM()
@@ -74,6 +76,7 @@ class Toddler:
 			scan360toRoom(self, DEST_ROOM)
 
 			if self.scan360_done:
+				del self.scan360_done
 				self.state += 1
 
 		elif self.state == 1:
@@ -83,6 +86,7 @@ class Toddler:
 			moveFromHomeToRoom(self, DEST_ROOM)
 
 			if self.moveFromHomeToRoom_done:
+				del self.moveFromHomeToRoom_done
 				self.state += 1
 
 		elif self.state == 2:
@@ -92,13 +96,30 @@ class Toddler:
 			fetchCube(self, DEST_ROOM)
 
 			if self.fetchCube_done:
+				del self.fetchCube_done
 				self.state += 1
 
 		elif self.state == 3:
 
 			#  3 - deliver cube to the respective base
+			print '3 - deliver cube to the respective base'
 
 			self.routine6()
+
+			print 'routine6_done:', self.routine6_done
+			if self.routine6_done:
+				self.state += 1
+
+		elif self.state == 4:
+
+			#  4 - go home
+			print '4 - go home'
+
+			goHome(self, DEST_ROOM)
+
+			if self.goHome_done:
+				del self.goHome_done
+				self.state = 0
 
 	def onBase(self):
 		return self.baseDetector.left.triggered() and self.baseDetector.right.triggered()
@@ -109,6 +130,8 @@ class Toddler:
 		return self.sensors[1] > IR_THRESHOLD
 
 	def routine6(self):
+		self.routine6_done = False
+
 		if self.ObstacleToTheRight():
 			self.motors.turnLeftOnSpot()
 
@@ -132,9 +155,9 @@ class Toddler:
 				self.gripper.openNow()
 				time.sleep(1)
 				self.motors.moveBackwards()
-				time.sleep(2)
+				time.sleep(1)
 				self.motors.stop()
-				self.state += 1
+				self.routine6_done = True
 			else:
 				self.motors.moveForward()
 

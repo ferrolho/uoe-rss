@@ -2,11 +2,10 @@ import time
 
 def moveFromHomeToRoom(self, room):
 
-	if not hasattr(self, '__moveFromHomeToRoom_started'):
+	if not hasattr(self, 'moveFromHomeToRoom_done'):
 		print '- Moving from home to room -'
-		self.__moveFromHomeToRoom_started = True
-		self.__moveFromHomeToRoom_state   = 0
-		self.moveFromHomeToRoom_done      = False
+		self.__moveFromHomeToRoom_state = 0
+		self.moveFromHomeToRoom_done    = False
 
 	if self.__moveFromHomeToRoom_state == 0:
 
@@ -16,7 +15,7 @@ def moveFromHomeToRoom(self, room):
 		if room == 'a':
 			self.hallCounter.setTimerCm(40)
 		elif room == 'b':
-			self.hallCounter.setTimerCm(50)
+			self.hallCounter.setTimerCm(55)
 		elif room == 'c':
 			self.hallCounter.setTimerCm(0)
 
@@ -32,7 +31,7 @@ def moveFromHomeToRoom(self, room):
 			self.motors.stop()
 
 			if room == 'b':
-				self.hallCounter.setTimer(3)
+				self.hallCounter.setTimer(2)
 				self.motors.turnLeft()
 
 			self.__moveFromHomeToRoom_state += 1

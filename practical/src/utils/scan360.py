@@ -8,9 +8,8 @@ def scan360toRoom(self, room):
 	right, left = self.IO.getSensors()[0], self.IO.getSensors()[1]
 	print '{} x {}'.format(left, right)
 
-	if not hasattr(self, '__scan360_started'):
+	if not hasattr(self, 'scan360_done'):
 		print '- Scanning 360 to room -'
-		self.__scan360_started     = True
 		self.__scan360_state       = 0
 		self.__scan360_roomCounter = 0
 		self.scan360_done          = False
