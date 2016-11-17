@@ -27,6 +27,14 @@ def moveFromHomeToRoom(self, room):
 
 		# Turn robot to face the middle of the room
 
+		if room == 'a':
+			if self.ObstacleToTheRight():
+				self.motors.turnLeftOnSpot()
+			elif self.ObstacleToTheLeft():
+				self.motors.turnRightOnSpot()
+			else:
+				self.motors.moveForward()
+
 		if self.hallCounter.timerIsDone():
 			self.motors.stop()
 

@@ -58,7 +58,7 @@ def aToHome(self):
 			print 'go forward (to home)'
 
 			self.motors.moveForward()
-			self.hallCounter.setTimer(18)
+			self.hallCounter.setTimer(22)
 			self.__aToHome_state += 1
 
 		elif self.__aToHome_state == 4:

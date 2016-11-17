@@ -65,8 +65,7 @@ def goHome(self):
 
 				self.motors.moveForward()
 
-				# turn 50 to 45
-				if sonar < 50 and self.hallCounter.timerIsDone():
+				if sonar < 55 and self.hallCounter.timerIsDone():
 					self.motors.stop()
 					time.sleep(0.1)
 					self.__goHome_state += 1
