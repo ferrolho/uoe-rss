@@ -12,7 +12,6 @@ def fetchCube(self, room):
 	if not hasattr(self, 'fetchCube_done'):
 		print '- Moving from home to room -'
 		self.__fetchCube_state = 0
-		self.__fetchCube_cubeHasBeenSeen = False
 		self.fetchCube_done    = False
 
 	if self.__fetchCube_state == 0:
@@ -30,7 +29,6 @@ def fetchCube(self, room):
 			time.sleep(0.1)
 			self.motors.stop()
 		else:
-			self.__fetchCube_cubeHasBeenSeen = True
 			self.__fetchCube_state += 1
 
 	elif self.__fetchCube_state == 1:
@@ -58,7 +56,7 @@ def fetchCube(self, room):
 						print 'turnRight'
 						self.motors.turnRight()
 
-					time.sleep(0.1)
+					time.sleep(0.15)
 
 				self.motors.stop()
 			else:
@@ -91,9 +89,16 @@ def fetchCube(self, room):
 		self.motors.stop()
 		time.sleep(0.5)
 
+		# close the gripper to see if we have the cube
+		self.gripper.closeNow()
+		time.sleep(0.3)
+
 		if self.gripper.sensesCube():
 			self.__fetchCube_state -= 1
 		else:
+			self.gripper.openNow()
+			time.sleep(0.3)
+
 			# we did not catch it - go back and try again
 			self.motors.moveBackwards()
 			self.hallCounter.setTimerAndWait(8)

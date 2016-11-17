@@ -26,8 +26,8 @@ class Toddler:
 		#  1 - moving into that room
 		#  2 - search for and fetch the cube
 		#  3 - deliver cube to the respective base
-		self.state = 3
-		self.cubeHasBeenSeen = False
+		self.state = 0
+		self.roomQueue = ['b', 'a', 'c']
 
 		if (USE_CONTROL):
 			self.baseDetector = BaseDetector(self.IO)
@@ -37,7 +37,6 @@ class Toddler:
 			self.whiskers = Whiskers(self.IO)
 
 			self.resetTurnSleep()
-			self.gripper.closeNow()
 
 		if (USE_VISION):
 			self.visionUtils = VisionUtils(self.IO)
@@ -73,7 +72,7 @@ class Toddler:
 
 			#  0 - scanning 360 for a room
 
-			scan360toRoom(self, DEST_ROOM)
+			scan360toRoom(self, self.roomQueue[0])
 
 			if self.scan360_done:
 				del self.scan360_done
@@ -83,7 +82,7 @@ class Toddler:
 
 			#  1 - moving into that room
 
-			moveFromHomeToRoom(self, DEST_ROOM)
+			moveFromHomeToRoom(self, self.roomQueue[0])
 
 			if self.moveFromHomeToRoom_done:
 				del self.moveFromHomeToRoom_done
@@ -93,7 +92,7 @@ class Toddler:
 
 			#  2 - search for and fetch the cube
 
-			fetchCube(self, DEST_ROOM)
+			fetchCube(self, self.roomQueue[0])
 
 			if self.fetchCube_done:
 				del self.fetchCube_done
@@ -106,7 +105,6 @@ class Toddler:
 
 			self.routine6()
 
-			print 'routine6_done:', self.routine6_done
 			if self.routine6_done:
 				self.state += 1
 
@@ -115,7 +113,7 @@ class Toddler:
 			#  4 - go home
 			print '4 - go home'
 
-			goHome(self, DEST_ROOM)
+			goHome(self, self.roomQueue[0])
 
 			if self.goHome_done:
 				del self.goHome_done
@@ -157,6 +155,8 @@ class Toddler:
 				self.motors.moveBackwards()
 				time.sleep(1)
 				self.motors.stop()
+				# remove this room from queue
+				self.roomQueue.pop(0)
 				self.routine6_done = True
 			else:
 				self.motors.moveForward()
