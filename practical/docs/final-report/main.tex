@@ -1,0 +1,46 @@
+\documentclass{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{appendix}
+\usepackage{array}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{import}
+\usepackage{menukeys}
+\usepackage{microtype}
+\usepackage[parfill]{parskip}
+\usepackage{seqsplit}
+\usepackage{tabu}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\begin{document}
+
+\import{includes/}{cover.tex}
+
+\tableofcontents
+\newpage
+
+\import{includes/}{abstract.tex}
+
+\import{includes/}{introduction.tex}
+
+\import{includes/}{methods.tex}
+
+\import{includes/}{results.tex}
+
+\import{includes/}{discussion.tex}
+
+\import{includes/}{sources.tex}
+
+\import{includes/}{appendix.tex}
+
+\end{document}
