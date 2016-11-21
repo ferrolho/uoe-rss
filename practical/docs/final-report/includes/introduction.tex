@@ -1,12 +1,12 @@
 \section{Introduction}
 
 The presented task was to build a robot capable of autonomously navigating through an arena, avoiding obstacles and walls, looking for three unique textured cardboard cubes, and delivering each cube to its respective base - each of them belonging to one and only one base. The entire task should be fulfilled in under 5 minutes.\\
-The arena layout was static, and contained two bases marked with a black rectangle on the floor. The assignment of each cube resource to its base should be easily configured in the robot's source code, since such assignment would be changed just before the final practical demonstrations.
+The arena layout was static, and contained two bases marked with a black rectangle on the floor. The assignment of each cube resource to its base can be easily configured in the robot's source code - as it should, since such assignment were to be changed just before the final practical demonstrations.
 
-The task was approached by dividing it into other small sub-tasks. Each sub-task was then completed in a sequential manner, from the most simple to the most daunting.\\
-The entire project was divided into two major milestones. The sub-tasks required for the first major milestone had a bigger priority, and thus were approached first.
+The entire project was divided into two major milestones. Each milestone was approached by dividing it into other small sub-tasks. Each sub-task was then completed in a sequential manner, from the most simple to the most daunting.\\
+The sub-tasks required for the first major milestone had a bigger priority, and thus were approached first.
 
-The task was not approached by building the robot first, and only then programming it. The robot was built iteratively: the physical layout got slightly tweaked each time a sub-task required it. The final physical layout of the robot still used some elements of the initial design, but overall it changed completely.\\
+It is important to note that the task was not approached by building the entire physical layout of the robot first, and only then programming it. On the contrary, the robot was built iteratively: the physical layout got slightly tweaked each time a sub-task required it. The final physical layout of the robot still used some elements of the initial design, but overall it changed completely.\\
 The same thing can be said about the source code: the architecture was iteratively adapted to integrate new modules. Each module was separately tested before being integrated into the main program.\\
 There were times when the source started to have code smells which required a minor (and some times a major) refactoring. Close to the end of the project a major refactoring had to be done in order to implement a proper State Machine. In retrospective, the State Machine should have been one of the first things to have been outlined and implemented - it would have saved a considerable amount of time throughout all the development process.
 
