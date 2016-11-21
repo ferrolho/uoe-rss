@@ -15,4 +15,12 @@
     \textbf{Abstract}
 \end{center}
 
+\bigskip
+
+This report describes the building process of a robot made out of LEGO and electronic parts. The robot was capable of autonomously navigating an arena known \textit{a priori}, finding special resources spread throughout the arena, and delivering those resources to specific delivery points.\\
+The robot used three light sensors and a camera to locate the special resources on the arena, as well as two IR sensors, a sonar, and a hall effect sensor to navigate through the arena avoiding obstacles and keeping track of the total distance traveled.\\
+The source code abstracts and interfaces all the sensors, and implements a State Machine to complete all the components of the global task.\\
+The robot was tested in 10 time trials, having successfully delivered 2 cubes in 7 out of those trials. The average run-time of those 7 trials was approximately 6 minutes.\\
+The major downside of the robot was that it was not able to deliver a cube from one room to a base on another room. This was not a physical layout flaw, but a downside on the programming of the robot.
+
 \newpage
